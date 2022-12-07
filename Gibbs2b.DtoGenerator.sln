@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gibbs2b.DtoGenerator", "Gibbs2b.DtoGenerator\Gibbs2b.DtoGenerator.csproj", "{D7965F4D-FC8E-49C0-A7F3-3B4A0202D4BD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gibbs2b.DtoGenerator.Design", "Gibbs2b.DtoGenerator.Design\Gibbs2b.DtoGenerator.Design.csproj", "{5A6215B4-015C-4D90-9437-309CA5C05CFE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D7965F4D-FC8E-49C0-A7F3-3B4A0202D4BD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D7965F4D-FC8E-49C0-A7F3-3B4A0202D4BD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D7965F4D-FC8E-49C0-A7F3-3B4A0202D4BD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D7965F4D-FC8E-49C0-A7F3-3B4A0202D4BD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A6215B4-015C-4D90-9437-309CA5C05CFE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A6215B4-015C-4D90-9437-309CA5C05CFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A6215B4-015C-4D90-9437-309CA5C05CFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A6215B4-015C-4D90-9437-309CA5C05CFE}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
