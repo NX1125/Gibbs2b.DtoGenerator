@@ -6,6 +6,12 @@ public class DtoSpec : ITypescriptInterface
 {
     private ICollection<DtoModelSpec> _models = new List<DtoModelSpec>();
 
+    public DtoSpec(ProjectSpec parent, DtoSpecFactory factory)
+    {
+        Parent = parent;
+        Factory = factory;
+    }
+
     public ICollection<DtoModelSpec> Models
     {
         get => _models;
@@ -41,30 +47,9 @@ public class DtoSpec : ITypescriptInterface
     public string FullCsPath => Path.Combine(Solution.Path, CsPath);
     public DtoSpecFactory Factory { get; init; }
 
-    public void SolveRelations()
-    {
-        if (Parent == null)
-            throw new ArgumentNullException();
-
-        foreach (var model in _models)
-        {
-            model.Parent = this;
-            model.SolveNames();
-        }
-    }
-
     public DtoModelSpec? FindDtoByModel(ModelSpec model)
     {
         return _models.FirstOrDefault(dto => dto.ModelName.Equals(model.Name));
-    }
-
-    public void SolveTsFields()
-    {
-        foreach (var model in _models)
-        {
-            model.Parent = this;
-            model.SolveTsFields();
-        }
     }
 }
 

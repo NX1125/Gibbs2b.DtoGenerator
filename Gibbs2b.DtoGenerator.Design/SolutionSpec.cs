@@ -36,13 +36,14 @@ public class SolutionSpec
 
     public void AddProject(ProjectSpec project)
     {
+        project.Solution = this;
         project.SourcePath = System.IO.Path.Combine(Path, project.Name.Namespace);
         Projects.Add(project);
     }
 
     public void AddProject(Assembly assembly)
     {
-        var project = new ProjectSpec(assembly);
+        var project = new ProjectSpec(assembly, this);
         AddProject(project);
     }
 
@@ -53,82 +54,5 @@ public class SolutionSpec
             Name = name,
             Path = path,
         };
-    }
-
-    public void Solve(bool schema)
-    {
-        foreach (var project in Projects)
-        {
-            if (!project.CsprojPath.Exists)
-                throw new ArgumentException(project.CsprojPath.FullName);
-
-            project.Solution = this;
-            if (schema)
-                project.CreateSchema();
-
-            foreach (var model in project.Models)
-            {
-                model.Parent = project;
-            }
-
-            foreach (var model in project.Dto
-                         .OrderByDescending(d => d.Options.IsView))
-            {
-                model.Parent = project;
-                model.SolveRelations();
-            }
-
-            foreach (var dto in project.Dto)
-            {
-                foreach (var model in dto.Models)
-                {
-                    model.ExpandImplicitProperties();
-                }
-            }
-        }
-    }
-
-    public void CreateSchema()
-    {
-        Solve(true);
-
-        // using var stream = File.Create(System.IO.Path.Combine(Path, "generator-schema.json"));
-        // JsonSerializer.Serialize(stream, this, new JsonSerializerOptions
-        // {
-        //     WriteIndented = true,
-        // });
-    }
-
-    public ModelSpec? GetModel<TModel>()
-    {
-        return GetModel(typeof(TModel));
-    }
-
-    public ModelSpec? GetModel(Type type)
-    {
-        return Projects
-            .SelectMany(project => project.Models)
-            .FirstOrDefault(model => model.Name.CapitalCase == type.Name);
-    }
-
-    public ModelSpec? GetModel(string name)
-    {
-        return Projects
-            .SelectMany(project => project.Models)
-            .FirstOrDefault(model => model.Name.CapitalCase == name);
-    }
-
-    public EnumSpec? GetEnum(Type type)
-    {
-        return Projects
-            .SelectMany(project => project.Enums)
-            .FirstOrDefault(model => model.Name.CapitalCase == type.Name);
-    }
-
-    public EnumSpec? GetEnum(string name)
-    {
-        return Projects
-            .SelectMany(project => project.Enums)
-            .FirstOrDefault(model => model.Name.CapitalCase == name);
     }
 }

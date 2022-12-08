@@ -6,6 +6,7 @@ public class EnumSpec
 {
     public EnumSpec(Type type)
     {
+        Type = type;
         Name = new NameSpec { CapitalCase = type.Name };
         Namespace = new NamespaceSpec { Namespace = type.Namespace! };
         Values = type.GetEnumNames();
@@ -14,6 +15,8 @@ public class EnumSpec
     public EnumSpec()
     {
     }
+
+    public Type Type { get; }
 
     public NameSpec Name { get; set; }
     public NamespaceSpec Namespace { get; set; }

@@ -8,59 +8,33 @@ namespace Gibbs2b.DtoGenerator.Model;
 
 public class ModelSpec : ITypescriptInterface
 {
-    private List<PropertySpec> _properties;
     private IEntityType? _entityType;
 
     public NameSpec Name { get; set; }
     public NamespaceSpec Namespace { get; set; }
     public NamespaceSpec UsingName { get; set; }
 
-    public List<PropertySpec> Properties
-    {
-        get => _properties;
-        set
-        {
-            _properties = value;
+    public List<PropertySpec> Properties { get; protected set; }
 
-            foreach (var property in value)
-            {
-                property.Parent = this;
-            }
+    public SolutionSpec Solution => Project.Solution;
 
-            PropertyMap = value
-                .ToDictionary(s => s.Name.CapitalCase);
-        }
-    }
-
-    public IDictionary<string, PropertySpec> PropertyMap { get; set; }
-
-    public SolutionSpec Solution => Parent.Solution;
-
-    public ProjectSpec Parent { get; set; }
+    public ProjectSpec Project { get; set; }
 
     public Type Type { get; set; }
 
     public bool NotMapped { get; set; }
 
-    public NameSpec[] Keys { get; set; } = { new() { CapitalCase = "Id" } };
+    public IEnumerable<PropertySpec> PrimaryKeys => Array.Empty<PropertySpec>();
 
     public string? TableName { get; set; }
 
     public IEnumerable<string> TypescriptProjects { get; set; } = Array.Empty<string>();
-
-    public ModelSpec()
-    {
-    }
 
     public ModelSpec(Type type)
     {
         Type = type;
         Name = new NameSpec { CapitalCase = type.Name };
         Namespace = new NamespaceSpec(type);
-        Properties = type
-            .GetProperties()
-            .Select(p => new PropertySpec(p))
-            .ToList();
 
         var usingName = type.FullName!;
         if (!usingName.StartsWith(type.Namespace!))
@@ -73,19 +47,21 @@ public class ModelSpec : ITypescriptInterface
         UsingName = new NamespaceSpec(usingName.Remove(0, type.Namespace!.Length + 1).Replace('+', '.'));
     }
 
+    internal void LoadProperties()
+    {
+        Properties = Type
+            .GetProperties()
+            .Select(p => new PropertySpec(p, this))
+            .ToList();
+    }
+
     public PropertySpec? GetPropertyByName(string name)
     {
         return Properties.FirstOrDefault(p => p.Name.CapitalCase == name);
     }
 
-    public void CreateSchema()
+    public PropertySpec? FindProperty(MemberInfo? prop)
     {
-        if (Solution == null)
-            throw new NullReferenceException();
-
-        foreach (var property in _properties)
-        {
-            property.CreateSchema();
-        }
+        return Properties.SingleOrDefault(p => p.PropertyInfo == prop);
     }
 }

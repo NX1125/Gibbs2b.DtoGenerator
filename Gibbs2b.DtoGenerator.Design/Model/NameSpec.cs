@@ -36,6 +36,16 @@ public class NameSpec
 
     public string KebabCase => string.Join('-', Parts.Select(p => p.ToLower()));
 
+    [Obsolete]
+    public NameSpec()
+    {
+    }
+
+    public NameSpec(string name)
+    {
+        CapitalCase = name;
+    }
+
     public override string ToString()
     {
         return CapitalCase;

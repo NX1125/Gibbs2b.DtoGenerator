@@ -14,16 +14,14 @@ public class ProjectSpec
 
     public NamespaceSpec Name { get; set; }
 
-    [JsonIgnore]
     public FileInfo CsprojPath => new(Path.Combine($"{SourcePath}", $"{Name}.csproj"));
 
-    [JsonIgnore]
     public IList<DtoSpecFactory> DtoSpecFactories { get; } = new List<DtoSpecFactory>();
 
     public IList<ModelSpec> Models { get; set; } = new List<ModelSpec>();
     public IList<EnumSpec> Enums { get; set; } = new List<EnumSpec>();
     public IList<DtoSpec> Dto { get; set; } = new List<DtoSpec>();
-    public IList<ModelSpec> TypescriptInterfaces { get; set; } = new List<ModelSpec>();
+    public IList<TsDtoSpec> TsDto { get; set; } = new List<TsDtoSpec>();
 
     public IEnumerable<DtoSpec> Views => Dto.Where(d => d.IsView);
 
@@ -31,17 +29,18 @@ public class ProjectSpec
     public NamespaceSpec ContextNamespace { get; set; }
     public NameSpec ContextName { get; set; }
 
-    [JsonIgnore]
     public SolutionSpec Solution { get; internal set; }
 
     public ViewNamespacePrefix[] Prefixes { get; set; } = Array.Empty<ViewNamespacePrefix>();
 
-    public ProjectSpec(Action<string[]> main) : this(main.Method.Module.Assembly, false)
+    public ProjectSpec(Action<string[]> main, SolutionSpec solution) : this(main.Method.Module.Assembly, solution)
     {
     }
 
-    public ProjectSpec(Assembly assembly, bool contextEnabled = true)
+    public ProjectSpec(Assembly assembly, SolutionSpec solution)
     {
+        Solution = solution;
+
         Name = new NamespaceSpec(assembly);
 
         foreach (var type in assembly.GetTypes())
@@ -51,7 +50,7 @@ public class ProjectSpec
             {
                 Models.Add(new ModelSpec(type)
                 {
-                    Parent = this,
+                    Project = this,
                     NotMapped = model.NotMapped,
                 });
             }
@@ -67,34 +66,38 @@ public class ProjectSpec
             }
             else if (type.IsSubclassOf(typeof(DbContext)))
             {
-                // Context = (DbContext) Activator.CreateInstance(type)!;
                 ContextNamespace = new NamespaceSpec(type);
                 ContextPath = Path.Combine(Path.Combine(ContextNamespace.Namespace
                     .Remove(0, Name.Namespace.Length)
                     .Split('.')), type.Name);
                 ContextName = new NameSpec { CapitalCase = type.Name };
-
-                // ((IGenDbContext) Context).InternalDtoIgnore = true;
+            }
+            else if (type.GetCustomAttribute<GenTsDtoAttribute>() != null)
+            {
+                TsDto.Add(new TsDtoSpec(type, this));
             }
         }
-    }
 
-    public ProjectSpec()
-    {
-    }
+        foreach (var model in Models)
+        {
+            model.LoadProperties();
+        }
 
-    public void CreateDtoSpecs()
-    {
-        if (Solution == null)
-            throw new ArgumentNullException();
+        foreach (var dto in TsDto)
+        {
+            foreach (var model in dto.Models)
+            {
+                model.LoadTsProperties();
+            }
+        }
+
+        // TODO: Primary keys
+        // TODO: Foreign keys
 
         foreach (var factory in DtoSpecFactories
                      .OrderByDescending(f => f.IsView))
         {
-            factory.Project = this;
-
             var dto = factory.CreateSpec();
-
             Dto.Add(dto);
         }
     }
@@ -104,22 +107,32 @@ public class ProjectSpec
         return Prefixes.SingleOrDefault(prefix => ns.StartsWith($"{prefix.Namespace}."));
     }
 
-    public void CreateSchema()
-    {
-        if (Solution == null)
-            throw new NullReferenceException();
-
-        CreateDtoSpecs();
-
-        foreach (var model in Models)
-        {
-            model.CreateSchema();
-        }
-    }
-
     public TypescriptProjectSpec? GetTypescriptProject(string name)
     {
         return Solution.TypescriptProjects
             .SingleOrDefault(p => p.Name == name);
+    }
+
+    public TypescriptProjectSpec? FindTypescriptProjectByNamespace(NamespaceSpec ns)
+    {
+        return Solution.TypescriptProjects
+            .SingleOrDefault(p => ns.StartsWith(p.DefaultNamespace));
+    }
+
+    public ModelSpec? GetModel<TModel>()
+    {
+        return GetModel(typeof(TModel));
+    }
+
+    public ModelSpec? GetModel(Type type)
+    {
+        return Models
+            .FirstOrDefault(model => model.Type == type);
+    }
+
+    public EnumSpec? GetEnum(Type type)
+    {
+        return Enums
+            .FirstOrDefault(model => model.Type == type);
     }
 }

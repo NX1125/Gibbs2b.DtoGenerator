@@ -67,7 +67,7 @@ public abstract class DtoSpecFactory
 
         OnCreateSpec();
 
-        var dto = new DtoSpec
+        return new DtoSpec(Project, this)
         {
             Models = Models,
             Name = DtoName,
@@ -75,8 +75,6 @@ public abstract class DtoSpecFactory
             Options = Options,
             Factory = this,
         };
-        dto.SolveTsFields();
-        return dto;
     }
 
     private IEnumerable<DtoPropertySpec> CreateProperties(NewExpression newExpression, ModelSpec model, DtoModelSpec parent)
@@ -128,14 +126,14 @@ public abstract class DtoSpecFactory
 
     public DtoModelSpec<TModel> AddModel<TModel>(Expression<Func<TModel, object>> properties, Action<DtoModelSpec<TModel>>? configure = null)
     {
-        var model = Solution.GetModel<TModel>();
+        var model = Project.GetModel<TModel>();
         if (model == null)
             throw new ArgumentException($"Not a model: {typeof(TModel)}");
 
         var newExpression = (NewExpression) properties.Body;
 
         var attr = typeof(TModel).GetCustomAttribute<GenModelAttribute>()!;
-        var dto = new DtoModelSpec<TModel>
+        var dto = new DtoModelSpec<TModel>(null)
         {
             Model = model,
             DtoName = model.Name.RemoveSuffix("View").Append("Dto"),
@@ -176,5 +174,9 @@ public class DtoModelSpec<TModel> : DtoModelSpec
     {
         var options = Property(field).Options;
         options.JsonIgnore = JsonIgnoreCondition.Always;
+    }
+
+    public DtoModelSpec(Type? type) : base(type)
+    {
     }
 }

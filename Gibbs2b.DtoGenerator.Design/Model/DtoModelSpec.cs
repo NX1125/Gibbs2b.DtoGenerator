@@ -63,58 +63,10 @@ public class DtoModelSpec
 
     public DtoSpecFactory Factory => Parent.Factory;
 
-    public Type? DtoType => Factory
-        .GetType()
-        .GetNestedTypes()
-        .SingleOrDefault(t => t.Name == DtoName.CapitalCase);
+    public Type? DtoType { get; }
 
-    public void SolveNames()
+    public DtoModelSpec(Type? type)
     {
-        Model = Parent.Solution.GetModel(ModelName.CapitalCase)!;
-
-        if (Model == null)
-            throw new ArgumentNullException();
-
-        foreach (var property in _properties)
-        {
-            property.Parent = this;
-            property.SolveRelations();
-        }
-    }
-
-    private IEnumerable<DtoPropertySpec> ExpandImplicitProperty(DtoPropertySpec prop)
-    {
-        yield return prop;
-
-        var id = prop.Property.Id;
-        if (!Parent.IsView || id == null)
-            yield break;
-
-        yield return new DtoPropertySpec(id, this);
-    }
-
-    public void ExpandImplicitProperties()
-    {
-        // _properties = _properties
-        //     .SelectMany(ExpandImplicitProperty)
-        //     .DistinctBy(p => p.PropertyName)
-        //     .ToArray();
-    }
-
-    public void SolveTsFields()
-    {
-        var type = DtoType;
-        if (type == null)
-            return;
-
-        // var names = _properties
-        //     .Select(p => p.PropertyName.CapitalCase)
-        //     .ToHashSet();
-        //
-        // TsProperties = type
-        //     .GetProperties()
-        //     .Where(p => p.GetCustomAttribute<GenTsPropertyAttribute>() != null && !names.Contains(p.Name))
-        //     .Select(p => new PropertySpec(p) { _solution = Solution })
-        //     .ToArray();
+        DtoType = type;
     }
 }

@@ -4,7 +4,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
-using Microsoft.EntityFrameworkCore.Metadata;
 using NpgsqlTypes;
 
 namespace Gibbs2b.DtoGenerator.Model;
@@ -16,33 +15,27 @@ public class PropertySpec : IPropertySpec, ITypescriptProperty
 
     public string TypeName { get; set; }
 
-    [JsonIgnore]
-    public PropertyInfo? PropertyInfo { get; set; }
+    public PropertyInfo PropertyInfo { get; set; }
 
     public PropertyOptions Options { get; set; } = new();
 
-    [JsonIgnore]
-    public ModelSpec Parent { get; internal set; } = null!;
+    public ModelSpec ParentModel { get; }
 
-    internal SolutionSpec? _solution;
+    public SolutionSpec Solution => ParentModel.Solution;
+    public ProjectSpec Project => ParentModel.Project;
 
-    [JsonIgnore]
-    public SolutionSpec Solution => _solution ?? Parent.Solution;
+    public ModelSpec? TypeModel => Project.GetModel(PropertyInfo.PropertyType);
 
-    [JsonIgnore]
-    public ModelSpec? TypeModel => Solution.GetModel(TypeName);
-
-    [JsonIgnore]
-    public EnumSpec? TypeEnum => Solution.GetEnum(TypeName);
+    public EnumSpec? EnumTypeSpec => Project.GetEnum(BaseType);
 
     public NameSpec PropertyName => Name;
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public TypeNameEnum TypeNameType
     {
-        get => _typeNameType ?? (TypeModel != null
+        get => _typeNameType ?? (IsModel
             ? TypeNameEnum.Model
-            : TypeEnum != null
+            : EnumTypeSpec != null
                 ? TypeNameEnum.Enum
                 : TypeNameEnum.Unknown);
         set => _typeNameType = value;
@@ -55,29 +48,20 @@ public class PropertySpec : IPropertySpec, ITypescriptProperty
         set => Options.EnumerableType = value;
     }
 
+    public virtual bool IsModel => TypeModel != null;
+
     public string EnumName => TypeName;
     public string DtoTsName => TypeModel!.Name.CapitalCase;
 
-    public NameSpec[] ForeignKeys { get; set; } = Array.Empty<NameSpec>();
+    public PropertySpec[] ForeignKeys { get; internal set; } = Array.Empty<PropertySpec>();
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool HasMany { get; set; }
+    public PropertySpec? Id => ParentModel.Properties.SingleOrDefault(p => p.Name.CapitalCase == $"{Name}Id");
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public bool? WithMany { get; set; }
+    public Type BaseType { get; }
 
-    [JsonIgnore]
-    public bool ForceColumnName { get; set; }
-
-    [JsonIgnore]
-    public PropertySpec? Id => Parent.Properties.SingleOrDefault(p => p.Name.CapitalCase == $"{Name}Id");
-
-    public PropertySpec()
+    public PropertySpec(PropertyInfo prop, ModelSpec parent)
     {
-    }
-
-    public PropertySpec(PropertyInfo prop)
-    {
+        ParentModel = parent;
         PropertyInfo = prop;
 
         var type = prop.PropertyType;
@@ -155,13 +139,14 @@ public class PropertySpec : IPropertySpec, ITypescriptProperty
             _typeNameType = TypeNameEnum.TsVector;
         }
 
-        // TODO: To switch
         Options.EnumerableType = enumerableType
                                  ?? SolveEnumerable(prop.PropertyType, typeof(Array), typeof(Array), EnumerableType.Array)
                                  ?? SolveEnumerable(prop.PropertyType, typeof(IList), typeof(IList<>), EnumerableType.List)
                                  ?? SolveEnumerable(prop.PropertyType, typeof(ICollection), typeof(ICollection<>), EnumerableType.Collection)
                                  ?? SolveEnumerable(prop.PropertyType, typeof(IEnumerable), typeof(IEnumerable<>), EnumerableType.Enumerable)
                                  ?? EnumerableType.None;
+
+        BaseType = type;
 
         Options.IsUrl = prop.GetCustomAttribute<UrlAttribute>() != null;
         Options.NotMapped = prop.GetCustomAttribute<NotMappedAttribute>() != null;
@@ -175,9 +160,15 @@ public class PropertySpec : IPropertySpec, ITypescriptProperty
         var pattern = prop.GetCustomAttribute<RegularExpressionAttribute>()?.Pattern;
         Options.Regex = pattern != null ? new Regex(pattern) : null;
         Options.Required |= Options.Key;
+        Options.Obsolete = prop.GetCustomAttribute<ObsoleteAttribute>() != null;
 
         Options.MaxLength = prop.GetCustomAttribute<MaxLengthAttribute>()?.Length;
         Options.MinLength = prop.GetCustomAttribute<MinLengthAttribute>()?.Length;
+    }
+
+    public override string ToString()
+    {
+        return PropertyInfo.ToString() ?? Name.CapitalCase;
     }
 
     private static EnumerableType? SolveEnumerable(Type type, Type genericType, Type generalType, EnumerableType enumerableType)
@@ -195,10 +186,6 @@ public class PropertySpec : IPropertySpec, ITypescriptProperty
         return definition == generalType || definition == genericType
             ? enumerableType
             : null;
-    }
-
-    public void CreateSchema()
-    {
     }
 }
 
@@ -238,86 +225,31 @@ public class PropertyOptions
 
     public PropertyOptions(PropertyOptions source)
     {
-        Key = source.Key;
-        Regex = source.Regex;
-        Required = source.Required;
-        EnumerableType = source.EnumerableType;
-        IsNullable = source.IsNullable;
-        IsUrl = source.IsUrl;
-        JsonB = source.JsonB;
-        JsonIgnore = source.JsonIgnore;
-        MaxLength = source.MaxLength;
-        MinLength = source.MinLength;
-        ModelKeys = source.ModelKeys;
-        NotMapped = source.NotMapped;
-        RegexPattern = source.RegexPattern;
-        IsNullableItem = source.IsNullableItem;
+        foreach (var prop in GetType().GetProperties())
+        {
+            prop.SetValue(this, prop.GetValue(source));
+        }
     }
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool IsNullable { get; set; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool IsNullableItem { get; set; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool IsUrl { get; set; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool NotMapped { get; set; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public EnumerableType EnumerableType { get; set; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool JsonB { get; set; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool Key { get; set; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool ModelKeys { get; set; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool Required { get; set; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? MinLength { get; set; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public int? MaxLength { get; set; }
+    public bool Obsolete { get; set; }
 
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? RegexPattern
     {
         get => Regex?.ToString();
         set => Regex = value == null ? null : new Regex(value);
     }
 
-    [JsonIgnore]
     public Regex? Regex { get; set; }
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public JsonIgnoreCondition? JsonIgnore { get; set; }
-
-    public PropertyOptions Clone()
-    {
-        return new PropertyOptions
-        {
-            Key = Key,
-            Regex = Regex,
-            Required = Required,
-            EnumerableType = EnumerableType,
-            IsNullable = IsNullable,
-            IsUrl = IsUrl,
-            JsonB = JsonB,
-            JsonIgnore = JsonIgnore,
-            MaxLength = MaxLength,
-            MinLength = MinLength,
-            ModelKeys = ModelKeys,
-            NotMapped = NotMapped,
-            RegexPattern = RegexPattern,
-            IsNullableItem = IsNullableItem,
-        };
-    }
 }

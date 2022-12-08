@@ -71,7 +71,7 @@ public class DtoPropertySpec : IPropertySpec, ITypescriptProperty
     public DtoPropertySpec(MemberInfo prop, ModelSpec model, bool isView)
     {
         PropertyName = new NameSpec { CapitalCase = prop.Name };
-        Property = model.PropertyMap[prop.Name];
+        Property = model.FindProperty(prop)!;
 
         _options = new PropertyOptions(Property.Options)
         {
@@ -87,23 +87,10 @@ public class DtoPropertySpec : IPropertySpec, ITypescriptProperty
         };
     }
 
-    public DtoPropertySpec()
-    {
-    }
-
     public DtoPropertySpec(PropertySpec prop, DtoModelSpec parent)
     {
         PropertyName = prop.Name;
         Property = prop;
         Parent = parent;
-    }
-
-    public void SolveRelations()
-    {
-        Property = Parent.Model.PropertyMap[PropertyName.CapitalCase];
-    }
-
-    public void CreateSchema()
-    {
     }
 }
