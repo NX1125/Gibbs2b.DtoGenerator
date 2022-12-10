@@ -24,16 +24,6 @@ public class SolutionSpec
         }
     }
 
-    public string? TypescriptProject
-    {
-        get => TypescriptProjects.SingleOrDefault(p => p.Name == "default")?.Path;
-        set
-        {
-            if (value != null)
-                TypescriptProjects.Add(new TypescriptProjectSpec { Name = "default", Path = value });
-        }
-    }
-
     public void AddProject(ProjectSpec project)
     {
         project.Solution = this;

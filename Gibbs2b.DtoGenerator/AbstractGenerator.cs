@@ -3,14 +3,14 @@ namespace Gibbs2b.DtoGenerator;
 public class AbstractGenerator
 {
     private IList<string> _lines;
-    private string? _path;
+    private IEnumerable<string>? _path;
     private string _indent = "";
     public string IndentStep { get; set; } = "    ";
 
-    public void StartFile(string path)
+    public void StartFiles(IEnumerable<string> path)
     {
         if (_path != null)
-            throw new InvalidOperationException(_path);
+            throw new InvalidOperationException();
         _path = path;
         _lines = new List<string>();
     }
@@ -52,16 +52,19 @@ public class AbstractGenerator
         _indent = _indent[..^IndentStep.Length];
     }
 
-    public void CommitFile()
+    public void CommitFiles()
     {
         if (_path == null)
             throw new InvalidOperationException();
 
-        using var stream = new StreamWriter(_path);
-
-        foreach (var line in _lines)
+        foreach (var path in _path)
         {
-            stream.WriteLine(line);
+            using var stream = new StreamWriter(path);
+
+            foreach (var line in _lines)
+            {
+                stream.WriteLine(line);
+            }
         }
 
         _path = null;
