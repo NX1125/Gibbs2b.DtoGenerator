@@ -80,12 +80,14 @@ public class TsGenerator : AbstractGenerator
                         if (property.Options.IsNullableItem)
                             type = $"({type} | null | undefined)";
 
+                        var suffix = string.Concat(Enumerable.Repeat("[]", property.Options.EnumerableDimension));
+
                         type = property.EnumerableType switch
                         {
-                            EnumerableType.Enumerable => $"{type}[]",
-                            EnumerableType.Collection => $"{type}[]",
-                            EnumerableType.Array => $"{type}[]",
-                            EnumerableType.List => $"{type}[]",
+                            EnumerableType.Enumerable => $"{type}{suffix}",
+                            EnumerableType.Collection => $"{type}{suffix}",
+                            EnumerableType.Array => $"{type}{suffix}",
+                            EnumerableType.List => $"{type}{suffix}",
                             _ => type,
                         };
 

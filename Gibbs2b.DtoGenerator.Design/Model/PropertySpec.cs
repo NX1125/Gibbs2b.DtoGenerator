@@ -13,7 +13,7 @@ public class PropertySpec : IPropertySpec, ITypescriptProperty
     private TypeNameEnum? _typeNameType;
     public NameSpec Name { get; set; }
 
-    public string TypeName { get; set; }
+    public string TypeName => BaseType.Name;
 
     public PropertyInfo PropertyInfo { get; set; }
 
@@ -59,6 +59,8 @@ public class PropertySpec : IPropertySpec, ITypescriptProperty
 
     public Type BaseType { get; }
 
+    private static readonly NullabilityInfoContext NullabilityContext = new();
+
     public PropertySpec(PropertyInfo prop, ModelSpec parent)
     {
         ParentModel = parent;
@@ -66,37 +68,22 @@ public class PropertySpec : IPropertySpec, ITypescriptProperty
 
         var type = prop.PropertyType;
 
-        Name = new NameSpec { CapitalCase = prop.Name };
+        Name = new NameSpec(prop.Name);
 
-        var baseType = Nullable.GetUnderlyingType(type);
-
-        if (baseType != null)
+        var nullableInfo = NullabilityContext.Create(PropertyInfo);
+        if (Nullable.GetUnderlyingType(type) != null || nullableInfo.WriteState is NullabilityState.Nullable)
         {
             Options.IsNullable = true;
-            type = baseType;
         }
 
-        EnumerableType? enumerableType = null;
+        type = UnwrapEnumerableLevel();
 
-        if (type.IsGenericType && typeof(IEnumerable).IsAssignableFrom(type))
-        {
-            type = type.GenericTypeArguments[0];
-        }
-        else if (type.IsArray)
-        {
-            enumerableType = EnumerableType.Array;
-            type = type.GetElementType()!;
-        }
-
-        baseType = Nullable.GetUnderlyingType(type);
-
+        var baseType = Nullable.GetUnderlyingType(type);
         if (baseType != null)
         {
             Options.IsNullableItem = true;
             type = baseType;
         }
-
-        TypeName = type.Name;
 
         if (type == typeof(int))
         {
@@ -139,13 +126,6 @@ public class PropertySpec : IPropertySpec, ITypescriptProperty
             _typeNameType = TypeNameEnum.TsVector;
         }
 
-        Options.EnumerableType = enumerableType
-                                 ?? SolveEnumerable(prop.PropertyType, typeof(Array), typeof(Array), EnumerableType.Array)
-                                 ?? SolveEnumerable(prop.PropertyType, typeof(IList), typeof(IList<>), EnumerableType.List)
-                                 ?? SolveEnumerable(prop.PropertyType, typeof(ICollection), typeof(ICollection<>), EnumerableType.Collection)
-                                 ?? SolveEnumerable(prop.PropertyType, typeof(IEnumerable), typeof(IEnumerable<>), EnumerableType.Enumerable)
-                                 ?? EnumerableType.None;
-
         BaseType = type;
 
         Options.IsUrl = prop.GetCustomAttribute<UrlAttribute>() != null;
@@ -166,9 +146,60 @@ public class PropertySpec : IPropertySpec, ITypescriptProperty
         Options.MinLength = prop.GetCustomAttribute<MinLengthAttribute>()?.Length;
     }
 
+    private Type UnwrapEnumerableLevel()
+    {
+        var baseType = PropertyInfo.PropertyType;
+        while (true)
+        {
+            var underlyingType = Nullable.GetUnderlyingType(baseType);
+            baseType = underlyingType ?? baseType;
+
+            if (baseType.IsArray)
+            {
+                var itemType = baseType.GetElementType()!;
+                if (Options.EnumerableType != EnumerableType.None && Options.EnumerableType != EnumerableType.Array)
+                    throw new InvalidOperationException();
+
+                Options.EnumerableType = EnumerableType.Array;
+                Options.EnumerableDimension += baseType.GetArrayRank();
+                baseType = itemType;
+            }
+            else
+            {
+                var enumerableType = SolveEnumerable(baseType);
+                if (enumerableType == EnumerableType.None)
+                {
+                    return baseType;
+                }
+
+                var itemType = baseType.GenericTypeArguments[0];
+
+                baseType = itemType ?? throw new NullReferenceException();
+
+                Options.EnumerableDimension++;
+
+                if (Options.EnumerableType != EnumerableType.None && Options.EnumerableType != enumerableType)
+                {
+                    throw new InvalidOperationException();
+                }
+
+                Options.EnumerableType = enumerableType;
+            }
+        }
+    }
+
     public override string ToString()
     {
         return PropertyInfo.ToString() ?? Name.CapitalCase;
+    }
+
+    private static EnumerableType SolveEnumerable(Type type)
+    {
+        return SolveEnumerable(type, typeof(Array), typeof(Array), EnumerableType.Array)
+               ?? SolveEnumerable(type, typeof(IList), typeof(IList<>), EnumerableType.List)
+               ?? SolveEnumerable(type, typeof(ICollection), typeof(ICollection<>), EnumerableType.Collection)
+               ?? SolveEnumerable(type, typeof(IEnumerable), typeof(IEnumerable<>), EnumerableType.Enumerable)
+               ?? EnumerableType.None;
     }
 
     private static EnumerableType? SolveEnumerable(Type type, Type genericType, Type generalType, EnumerableType enumerableType)
@@ -236,6 +267,7 @@ public class PropertyOptions
     public bool IsUrl { get; set; }
     public bool NotMapped { get; set; }
     public EnumerableType EnumerableType { get; set; }
+    public int EnumerableDimension { get; set; }
     public bool JsonB { get; set; }
     public bool Key { get; set; }
     public bool ModelKeys { get; set; }

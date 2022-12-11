@@ -17,7 +17,6 @@ public class TsDtoSpec
     public IEnumerable<string> TsPaths => Project.FindTypescriptProjectByNamespace(new NamespaceSpec(Type.Namespace!))!.Paths
         .Select(path => Path.Combine(path, $"{DtoName.KebabCase}.dto.gen.ts"));
 
-
     public TsDtoSpec(Type type, ProjectSpec project)
     {
         Type = type;
