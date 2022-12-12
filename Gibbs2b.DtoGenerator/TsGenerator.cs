@@ -15,6 +15,8 @@ public class TsGenerator : AbstractGenerator
     {
         _solution = solution;
         _logger = logger;
+
+        IndentStep = "  ";
     }
 
     public void Generate()
