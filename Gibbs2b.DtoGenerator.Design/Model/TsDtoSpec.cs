@@ -14,7 +14,13 @@ public class TsDtoSpec
 
     public NameSpec DtoName { get; set; }
 
-    public IEnumerable<string> TsPaths => Project.FindTypescriptProjectByNamespace(new NamespaceSpec(Type.Namespace!))!.Paths
+    public string? ProjectName { get; set; }
+
+    public TypescriptProjectSpec? TsProject => ProjectName == null
+        ? Project.FindTypescriptProjectByNamespace(new NamespaceSpec(Type.Namespace!))
+        : Project.FindTypescriptProjectByName(ProjectName);
+
+    public IEnumerable<string> TsPaths => TsProject!.Paths
         .Select(path => Path.Combine(path, $"{DtoName.KebabCase}.dto.gen.ts"));
 
     public TsDtoSpec(Type type, ProjectSpec project)
@@ -38,6 +44,8 @@ public class TsDtoSpec
         }
 
         Models = models.Values.ToArray();
+
+        ProjectName = type.GetCustomAttribute<GenTsDtoAttribute>()!.Project;
     }
 
     private void FindModels(TsDtoModelSpec model, IDictionary<Type, TsDtoModelSpec> specs)

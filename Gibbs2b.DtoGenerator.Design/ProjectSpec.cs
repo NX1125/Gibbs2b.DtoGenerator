@@ -119,6 +119,12 @@ public class ProjectSpec
             .SingleOrDefault(p => ns.StartsWith(p.DefaultNamespace));
     }
 
+    public TypescriptProjectSpec? FindTypescriptProjectByName(string name)
+    {
+        return Solution.TypescriptProjects
+            .SingleOrDefault(p => p.Name == name);
+    }
+
     public ModelSpec? GetModel<TModel>()
     {
         return GetModel(typeof(TModel));
