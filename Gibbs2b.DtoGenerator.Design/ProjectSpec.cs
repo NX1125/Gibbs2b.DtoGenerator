@@ -116,7 +116,8 @@ public class ProjectSpec
     public TypescriptProjectSpec? FindTypescriptProjectByNamespace(NamespaceSpec ns)
     {
         return Solution.TypescriptProjects
-            .SingleOrDefault(p => ns.StartsWith(p.DefaultNamespace));
+            .SingleOrDefault(p => p.DefaultNamespaces
+                .Any(ns.StartsWith));
     }
 
     public TypescriptProjectSpec? FindTypescriptProjectByName(string name)
