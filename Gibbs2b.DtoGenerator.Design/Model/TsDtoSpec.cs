@@ -51,7 +51,8 @@ public class TsDtoSpec
     private void FindModels(TsDtoModelSpec model, IDictionary<Type, TsDtoModelSpec> specs)
     {
         model.LoadTsProperties();
-        var props = model.Properties
+        var props = model.TsProperties
+            .Where(p => p.OpaqueModel == null)
             .Where(p => p.TypeNameType is TypeNameEnum.Model or TypeNameEnum.Unknown && p.Options.JsonIgnore != JsonIgnoreCondition.Always)
             .Select(p => p.BaseType)
             .ToArray();
