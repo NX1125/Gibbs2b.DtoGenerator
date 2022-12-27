@@ -24,18 +24,6 @@ public static class DbContextExtensions
 
     public static void HasTsVector<TEntity>(this ModelBuilder modelBuilder,
         Expression<Func<TEntity, NpgsqlTsVector>> field,
-        string config = "english") where TEntity : class
-    {
-        var lambda = field as LambdaExpression;
-
-        modelBuilder.HasTsVector(
-            field,
-            Expression.Lambda<Func<TEntity, object>>(lambda.Body, false, lambda.Parameters),
-            config);
-    }
-
-    public static void HasTsVector<TEntity>(this ModelBuilder modelBuilder,
-        Expression<Func<TEntity, NpgsqlTsVector>> field,
         Expression<Func<TEntity, object>> include,
         string config = "english") where TEntity : class
     {
