@@ -2,7 +2,7 @@ namespace Gibbs2b.DtoGenerator;
 
 public class AbstractGenerator
 {
-    private IList<string> _lines;
+    private IList<string> _lines = null!;
     private IEnumerable<string>? _path;
     private string _indent = "";
     public string IndentStep { get; set; } = "    ";
