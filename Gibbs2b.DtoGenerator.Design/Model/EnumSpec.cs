@@ -19,13 +19,13 @@ public class EnumSpec
     {
     }
 
-    public Type Type { get; }
+    public Type Type { get; } = null!;
 
-    public NameSpec Name { get; set; }
-    public NamespaceSpec Namespace { get; set; }
+    public NameSpec Name { get; set; } = null!;
+    public NamespaceSpec Namespace { get; set; } = null!;
 
     [Obsolete]
-    public ICollection<string> Values { get; set; }
+    public ICollection<string> Values { get; set; } = null!;
 
     public bool TsArrayEnabled => Type.GetCustomAttribute<GenEnumAttribute>()!.TsArrayEnabled;
 

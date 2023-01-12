@@ -8,7 +8,7 @@ public class TsDtoModelSpec : ModelSpec
     public TsDtoSpec Dto { get; }
     public string DtoName { get; set; }
 
-    public TsDtoPropertySpec[] TsProperties { get; protected set; }
+    public TsDtoPropertySpec[] TsProperties { get; protected set; } = null!;
 
     public bool NullableBool { get; set; }
 

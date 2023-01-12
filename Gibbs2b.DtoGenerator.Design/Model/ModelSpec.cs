@@ -8,17 +8,15 @@ namespace Gibbs2b.DtoGenerator.Model;
 
 public class ModelSpec : ITypescriptInterface
 {
-    private IEntityType? _entityType;
-
     public NameSpec Name { get; set; }
     public NamespaceSpec Namespace { get; set; }
     public NamespaceSpec UsingName { get; set; }
 
-    public List<PropertySpec> Properties { get; protected set; }
+    public List<PropertySpec> Properties { get; protected set; } = null!;
 
     public SolutionSpec Solution => Project.Solution;
 
-    public ProjectSpec Project { get; set; }
+    public ProjectSpec Project { get; set; } = null!;
 
     public Type Type { get; set; }
 

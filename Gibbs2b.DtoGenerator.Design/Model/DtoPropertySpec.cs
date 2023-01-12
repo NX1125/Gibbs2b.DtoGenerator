@@ -15,7 +15,7 @@ public class DtoPropertySpec : IPropertySpec, ITypescriptProperty
     public NameSpec PropertyName { get; set; }
 
     [JsonIgnore]
-    public DtoModelSpec Parent { get; internal set; }
+    public DtoModelSpec Parent { get; internal set; } = null!;
 
     [JsonIgnore]
     public SolutionSpec Solution => Parent.Solution;

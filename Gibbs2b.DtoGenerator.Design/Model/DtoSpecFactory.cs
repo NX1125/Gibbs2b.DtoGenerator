@@ -13,7 +13,7 @@ public abstract class DtoSpecFactory
 
     public SolutionSpec Solution => Project.Solution;
 
-    public ProjectSpec Project { get; set; }
+    public ProjectSpec Project { get; set; } = null!;
 
     public DtoOptions Options { get; set; } = new();
 
@@ -52,8 +52,8 @@ public abstract class DtoSpecFactory
         set => Options.TypescriptProjects.Add(value);
     }
 
-    public NameSpec ViewInfix { get; set; }
-    public NameSpec DtoName { get; set; }
+    public NameSpec ViewInfix { get; set; } = null!;
+    public NameSpec DtoName { get; set; } = null!;
 
     public abstract void OnCreateSpec();
 

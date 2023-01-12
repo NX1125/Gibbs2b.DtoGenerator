@@ -6,7 +6,7 @@ namespace Gibbs2b.DtoGenerator;
 
 public class SolutionSpec
 {
-    public string Path { get; set; }
+    public string Path { get; set; } = null!;
 
     public ICollection<ProjectSpec> Projects { get; set; } = new List<ProjectSpec>();
 

@@ -36,12 +36,12 @@ public class DtoSpec : ITypescriptInterface
     [JsonIgnore]
     public SolutionSpec Solution => Parent.Solution;
 
-    public DtoOptions Options { get; set; }
+    public DtoOptions Options { get; set; } = null!;
 
     public bool IsView => Options.IsView;
 
-    public NamespaceSpec Namespace { get; set; }
-    public NameSpec Name { get; set; }
+    public NamespaceSpec Namespace { get; set; } = null!;
+    public NameSpec Name { get; set; } = null!;
 
     public string CsPath => Path.Combine(Namespace.GetPath(Parent.Name), $"{Name.CapitalCase}.cs");
     public string FullCsPath => Path.Combine(Solution.Path, CsPath);

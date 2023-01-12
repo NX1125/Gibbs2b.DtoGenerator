@@ -68,7 +68,7 @@ public class NamespaceSpec
         return Namespace;
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         return obj is NamespaceSpec n && n.Namespace == Namespace;
     }

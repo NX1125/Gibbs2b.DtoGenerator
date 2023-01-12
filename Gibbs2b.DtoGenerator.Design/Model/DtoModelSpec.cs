@@ -7,8 +7,8 @@ namespace Gibbs2b.DtoGenerator.Model;
 
 public class DtoModelSpec
 {
-    private IList<DtoPropertySpec> _properties;
-    private ModelSpec _model;
+    private IList<DtoPropertySpec> _properties= null!;
+    private ModelSpec _model= null!;
     private NameSpec? _dtoName;
 
     [JsonIgnore]
@@ -23,7 +23,7 @@ public class DtoModelSpec
         }
     }
 
-    public NameSpec ModelName { get; set; }
+    public NameSpec ModelName { get; set; } = null!;
 
     public NameSpec DtoName
     {

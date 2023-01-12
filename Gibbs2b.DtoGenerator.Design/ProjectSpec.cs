@@ -10,9 +10,9 @@ namespace Gibbs2b.DtoGenerator;
 
 public class ProjectSpec
 {
-    public string SourcePath { get; set; }
+    public string SourcePath { get; set; } = null!;
 
-    public NamespaceSpec Name { get; set; }
+    public NamespaceSpec Name { get; set; } = null!;
 
     public FileInfo CsprojPath => new(Path.Combine($"{SourcePath}", $"{Name}.csproj"));
 
@@ -25,11 +25,11 @@ public class ProjectSpec
 
     public IEnumerable<DtoSpec> Views => Dto.Where(d => d.IsView);
 
-    public string ContextPath { get; set; }
-    public NamespaceSpec ContextNamespace { get; set; }
-    public NameSpec ContextName { get; set; }
+    public string ContextPath { get; set; } = null!;
+    public NamespaceSpec ContextNamespace { get; set; } = null!;
+    public NameSpec ContextName { get; set; } = null!;
 
-    public SolutionSpec Solution { get; internal set; }
+    public SolutionSpec Solution { get; internal set; } = null!;
 
     public ViewNamespacePrefix[] Prefixes { get; set; } = Array.Empty<ViewNamespacePrefix>();
 

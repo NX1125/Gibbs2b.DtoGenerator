@@ -2,10 +2,10 @@ namespace Gibbs2b.DtoGenerator.Model;
 
 public class ViewNamespacePrefix
 {
-    public NamespaceSpec Namespace { get; set; }
-    public string Infix { get; set; }
+    public NamespaceSpec Namespace { get; set; } = null!;
+    public string Infix { get; set; } = null!;
 
-    public string ViewPrefix { get; set; }
+    public string ViewPrefix { get; set; } = null!;
 
     public ViewNamespacePrefix()
     {

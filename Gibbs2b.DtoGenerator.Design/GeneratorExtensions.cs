@@ -47,7 +47,7 @@ public class GeneratorShutdownException : Exception
 public static class GeneratorExtensions
 {
     public static bool Enabled { get; set; }
-    public static Type ContextType { get; set; }
+    public static Type ContextType { get; set; } = null!;
 
     public static void AddGenerator(this IServiceCollection builder)
     {
