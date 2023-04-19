@@ -199,10 +199,12 @@ public class PropertySpec : IPropertySpec, ITypescriptProperty
                ?? SolveEnumerable(type, typeof(IList), typeof(IList<>), EnumerableType.List)
                ?? SolveEnumerable(type, typeof(ICollection), typeof(ICollection<>), EnumerableType.Collection)
                ?? SolveEnumerable(type, typeof(IEnumerable), typeof(IEnumerable<>), EnumerableType.Enumerable)
+               ?? SolveEnumerable(type, typeof(IDictionary), typeof(IDictionary<,>), EnumerableType.Dictionary)
                ?? EnumerableType.None;
     }
 
-    private static EnumerableType? SolveEnumerable(Type type, Type genericType, Type generalType, EnumerableType enumerableType)
+    private static EnumerableType? SolveEnumerable(Type type, Type genericType, Type generalType,
+        EnumerableType enumerableType)
     {
         Type definition;
         try
@@ -246,6 +248,7 @@ public enum EnumerableType
     Collection,
     Array,
     List,
+    Dictionary,
 }
 
 public class PropertyOptions
