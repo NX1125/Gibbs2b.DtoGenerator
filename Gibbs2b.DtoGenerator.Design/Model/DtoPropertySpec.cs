@@ -70,7 +70,7 @@ public class DtoPropertySpec : IPropertySpec, ITypescriptProperty
 
     public DtoPropertySpec(MemberInfo prop, ModelSpec model, bool isView)
     {
-        PropertyName = new NameSpec { CapitalCase = prop.Name };
+        PropertyName = new(prop.Name);
         Property = model.FindProperty(prop)!;
 
         _options = new PropertyOptions(Property.Options)

@@ -31,7 +31,7 @@ public class ModelSpec : ITypescriptInterface
     public ModelSpec(Type type)
     {
         Type = type;
-        Name = new NameSpec { CapitalCase = type.Name };
+        Name = new(type.Name);
         Namespace = new NamespaceSpec(type);
 
         var usingName = type.FullName!;

@@ -62,7 +62,7 @@ public abstract class DtoSpecFactory
         if (Solution == null)
             throw new ArgumentNullException();
 
-        DtoName = new NameSpec { CapitalCase = GetType().Name };
+        DtoName = new(GetType().Name);
         ViewInfix = DtoName;
 
         OnCreateSpec();

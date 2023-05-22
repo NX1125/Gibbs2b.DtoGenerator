@@ -10,8 +10,8 @@ public class EnumSpec
     public EnumSpec(Type type)
     {
         Type = type;
-        Name = new NameSpec { CapitalCase = type.Name };
-        Namespace = new NamespaceSpec { Namespace = type.Namespace! };
+        Name = new(type.Name);
+        Namespace = new NamespaceSpec(type.Namespace!);
         Values = type.GetEnumNames();
     }
 

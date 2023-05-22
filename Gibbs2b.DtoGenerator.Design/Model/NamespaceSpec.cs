@@ -38,7 +38,7 @@ public class NamespaceSpec
     public NamespaceSpec(params string[] parts)
     {
         Parts = parts
-            .Select(p => new NameSpec { CapitalCase = p })
+            .Select(p => new NameSpec(p))
             .ToArray();
     }
 
@@ -54,14 +54,14 @@ public class NamespaceSpec
         {
             Parts = value
                 .Split('.')
-                .Select(n => new NameSpec { CapitalCase = n })
+                .Select(n => new NameSpec(n))
                 .ToArray();
             if (Parts.Length <= 0)
                 throw new ArgumentException();
         }
     }
 
-    public static readonly NamespaceSpec Linq = new() { Namespace = "System.Linq" };
+    public static readonly NamespaceSpec Linq = new("System.Linq");
 
     public override string ToString()
     {

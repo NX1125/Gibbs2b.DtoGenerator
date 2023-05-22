@@ -46,12 +46,17 @@ public class NameSpec
         CapitalCase = name;
     }
 
+    public NameSpec(string[] parts)
+    {
+        Parts = parts;
+    }
+
     public override string ToString()
     {
         return CapitalCase;
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         return obj is NameSpec name && name.CapitalCase == CapitalCase;
     }
@@ -63,12 +68,9 @@ public class NameSpec
 
     public NameSpec Append(params string[] parts)
     {
-        return new NameSpec
-        {
-            Parts = Parts
-                .Concat(parts)
-                .ToArray(),
-        };
+        return new NameSpec(Parts
+            .Concat(parts)
+            .ToArray());
     }
 
     private static string Capitalize(string s)
@@ -79,7 +81,7 @@ public class NameSpec
     public NameSpec RemoveSuffix(string suffix)
     {
         return suffix.Equals(Parts[^1], StringComparison.OrdinalIgnoreCase)
-            ? new NameSpec { Parts = Parts.SkipLast(1).ToArray() }
+            ? new NameSpec(Parts.SkipLast(1).ToArray())
             : this;
     }
 }

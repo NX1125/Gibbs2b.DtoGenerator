@@ -70,7 +70,7 @@ public class ProjectSpec
                 ContextPath = Path.Combine(Path.Combine(ContextNamespace.Namespace
                     .Remove(0, Name.Namespace.Length)
                     .Split('.')), type.Name);
-                ContextName = new NameSpec { CapitalCase = type.Name };
+                ContextName = new(type.Name);
             }
             else if (type.GetCustomAttribute<GenTsDtoAttribute>() != null)
             {
