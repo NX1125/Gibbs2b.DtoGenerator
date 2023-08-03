@@ -6,11 +6,17 @@ namespace Gibbs2b.DtoGenerator;
 
 public class SolutionSpec
 {
+    /// <summary>
+    /// Base path for all deserialized paths.
+    /// </summary>
+    public string? CommonPath { get; set; }
+
     public string Path { get; set; } = null!;
 
     public ICollection<ProjectSpec> Projects { get; set; } = new List<ProjectSpec>();
 
-    public IDictionary<string, PythonProjectSpec> PythonProjects { get; set; } = new Dictionary<string, PythonProjectSpec>();
+    public IDictionary<string, PythonProjectSpec> PythonProjects { get; set; } =
+        new Dictionary<string, PythonProjectSpec>();
 
     public ICollection<TypescriptProjectSpec> TypescriptProjects { get; set; } = new List<TypescriptProjectSpec>();
 
@@ -37,6 +43,16 @@ public class SolutionSpec
         AddProject(project);
     }
 
+    public void AddProject(Type type)
+    {
+        AddProject(type.Assembly);
+    }
+
+    public void AddProject<TProgram>()
+    {
+        AddProject(typeof(TProgram));
+    }
+
     public void AddPythonProject(string name, string path)
     {
         PythonProjects[name] = new PythonProjectSpec
@@ -44,5 +60,38 @@ public class SolutionSpec
             Name = name,
             Path = path,
         };
+    }
+
+    public static SolutionSpec FromJson<TGenerator>(string? filename = null)
+    {
+        // from json resource
+        var type = typeof(TGenerator);
+        filename ??= $"{type.Namespace}.dtosettings.json";
+
+        using var stream = type.Assembly.GetManifestResourceStream(filename);
+
+        if (stream == null)
+            throw new Exception($"Resource not found: {filename}");
+
+        var data = JsonSerializer.Deserialize<SolutionSpec>(stream);
+        if (data == null)
+            throw new Exception($"Failed to deserialize: {filename}");
+
+        if (data.CommonPath != null)
+            data.UpdateBasePaths();
+
+        return data;
+    }
+
+    private void UpdateBasePaths()
+    {
+        Path = System.IO.Path.Combine(CommonPath!, Path);
+        foreach (var project in TypescriptProjects)
+        {
+            for (var i = 0; i < project.Paths.Length; i++)
+            {
+                project.Paths[i] = System.IO.Path.Combine(CommonPath!, project.Paths[i]);
+            }
+        }
     }
 }

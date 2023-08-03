@@ -28,7 +28,7 @@ public class Generator
 
     public void Run(string? path, string[] args)
     {
-        _solution.Path = path ?? Directory.GetCurrentDirectory();
+        _solution.Path = path ?? _solution.Path;
 
         if (args.Contains("--cs"))
             GenerateCs();
@@ -308,6 +308,6 @@ public class Generator
 
         host.Services
             .GetRequiredService<Generator>()
-            .Run(args[0], args);
+            .Run(args.Length > 0 ? args[0] : null, args);
     }
 }

@@ -31,6 +31,9 @@ public class ProjectSpec
 
     public SolutionSpec Solution { get; internal set; } = null!;
 
+    /// <summary>
+    /// Used for database views.
+    /// </summary>
     public ViewNamespacePrefix[] Prefixes { get; set; } = Array.Empty<ViewNamespacePrefix>();
 
     public ProjectSpec(Action<string[]> main, SolutionSpec solution) : this(main.Method.Module.Assembly, solution)
@@ -116,7 +119,7 @@ public class ProjectSpec
     public TypescriptProjectSpec? FindTypescriptProjectByNamespace(NamespaceSpec ns)
     {
         return Solution.TypescriptProjects
-            .SingleOrDefault(p => p.DefaultNamespaces
+            .SingleOrDefault(p => p.Namespaces
                 .Any(ns.StartsWith));
     }
 
