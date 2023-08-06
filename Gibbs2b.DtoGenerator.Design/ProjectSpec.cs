@@ -1,10 +1,7 @@
 using System.Reflection;
-using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Gibbs2b.DtoGenerator.Annotation;
 using Gibbs2b.DtoGenerator.Model;
-using Gibbs2b.DtoGenerator.Typescript;
-using Microsoft.CodeAnalysis;
 
 namespace Gibbs2b.DtoGenerator;
 
@@ -35,6 +32,8 @@ public class ProjectSpec
     /// Used for database views.
     /// </summary>
     public ViewNamespacePrefix[] Prefixes { get; set; } = Array.Empty<ViewNamespacePrefix>();
+
+    public ICollection<ControllerSpec> Controllers { get; }
 
     public ProjectSpec(Action<string[]> main, SolutionSpec solution) : this(main.Method.Module.Assembly, solution)
     {
@@ -103,6 +102,12 @@ public class ProjectSpec
             var dto = factory.CreateSpec();
             Dto.Add(dto);
         }
+
+        Controllers = assembly
+            .GetTypes()
+            .Where(t => t.GetCustomAttribute<GenControllerAttribute>() != null)
+            .Select(t => new ControllerSpec(t, this, t.GetCustomAttribute<GenControllerAttribute>()!))
+            .ToArray();
     }
 
     public ViewNamespacePrefix? GetViewPrefix(string ns)
@@ -121,6 +126,11 @@ public class ProjectSpec
         return Solution.TypescriptProjects
             .SingleOrDefault(p => p.Namespaces
                 .Any(ns.StartsWith));
+    }
+
+    public TypescriptProjectSpec? FindTypescriptProjectByNamespace(string ns)
+    {
+        return FindTypescriptProjectByNamespace(new NamespaceSpec(ns));
     }
 
     public TypescriptProjectSpec? FindTypescriptProjectByName(string name)

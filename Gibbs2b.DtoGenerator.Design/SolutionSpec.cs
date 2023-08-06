@@ -13,12 +13,18 @@ public class SolutionSpec
 
     public string Path { get; set; } = null!;
 
+    [Obsolete]
     public ICollection<ProjectSpec> Projects { get; set; } = new List<ProjectSpec>();
 
     public IDictionary<string, PythonProjectSpec> PythonProjects { get; set; } =
         new Dictionary<string, PythonProjectSpec>();
 
     public ICollection<TypescriptProjectSpec> TypescriptProjects { get; set; } = new List<TypescriptProjectSpec>();
+
+    /// <summary>
+    /// Currently only one project is supported.
+    /// </summary>
+    public ProjectSpec Project => Projects.Single();
 
     public string? DefaultPythonProjectPath
     {
@@ -32,6 +38,9 @@ public class SolutionSpec
 
     public void AddProject(ProjectSpec project)
     {
+        if (Projects.Count > 0)
+            throw new Exception("Only one project is currently supported");
+
         project.Solution = this;
         project.SourcePath = System.IO.Path.Combine(Path, project.Name.Namespace);
         Projects.Add(project);

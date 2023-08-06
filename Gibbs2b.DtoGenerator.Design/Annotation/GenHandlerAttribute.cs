@@ -1,8 +1,6 @@
-using System;
-
 namespace Gibbs2b.DtoGenerator.Annotation;
 
-[AttributeUsage(AttributeTargets.Class)]
+[AttributeUsage(AttributeTargets.Method)]
 public class GenHandlerAttribute : Attribute
 {
 }
