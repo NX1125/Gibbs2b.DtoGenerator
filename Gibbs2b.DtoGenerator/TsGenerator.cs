@@ -245,7 +245,7 @@ public class TsGenerator : AbstractGenerator
             WriteLine();
 
             // import AxiosResponse
-            WriteLine("import { AxiosResponse } from 'axios'");
+            WriteLine("import { AxiosResponse, AxiosRequestConfig } from 'axios'");
 
             // import each query and response
             foreach (var controller in project.Controllers)
@@ -287,7 +287,7 @@ public class TsGenerator : AbstractGenerator
                     var queryName = query!.DtoName;
                     var responseName = response!.DtoName;
 
-                    WriteLine($"{handler.Name.CamelCase}(query: {queryName}): Promise<AxiosResponse<{responseName}>>");
+                    WriteLine($"{handler.Name.CamelCase}(query: {queryName}, signal?: AbortSignal, config?: AxiosRequestConfig): Promise<AxiosResponse<{responseName}>>");
                 }
             }
 
