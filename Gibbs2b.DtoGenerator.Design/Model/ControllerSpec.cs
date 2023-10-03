@@ -98,7 +98,10 @@ public class HandlerSpec
 
         Response = controller.Project.TsDto
             .SelectMany(d => d.Models)
-            .Single(d => d.Type == returnType);
+            .SingleOrDefault(d => d.Type == returnType);
+
+        if (Response == null)
+            throw new Exception($"Response type {returnType.Name} not found");
 
         Name = Response.Dto.DtoName;
     }
