@@ -287,7 +287,7 @@ public class TsGenerator : AbstractGenerator
                     var queryName = query!.DtoName;
                     var responseName = response!.DtoName;
 
-                    WriteLine($"{handler.Name.CamelCase}(query: {queryName}, signal?: AbortSignal, config?: AxiosRequestConfig): Promise<AxiosResponse<{responseName}>>");
+                    WriteLine($"{handler.Name.CamelCase}(request: {queryName}, signal?: AbortSignal, config?: AxiosRequestConfig): Promise<AxiosResponse<{responseName}>>");
                 }
             }
 
