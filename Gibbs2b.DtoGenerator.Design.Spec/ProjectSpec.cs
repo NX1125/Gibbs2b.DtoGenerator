@@ -1,9 +1,9 @@
 using System.Reflection;
-using Microsoft.EntityFrameworkCore;
 using Gibbs2b.DtoGenerator.Annotation;
 using Gibbs2b.DtoGenerator.Model;
+using Microsoft.EntityFrameworkCore;
 
-namespace Gibbs2b.DtoGenerator;
+namespace Gibbs2b.DtoGenerator.Design.Config;
 
 public class ProjectSpec
 {

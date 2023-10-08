@@ -250,6 +250,9 @@ public class TsGenerator : AbstractGenerator
             // import each query and response
             foreach (var controller in project.Controllers)
             {
+                if (controller.TypescriptProject != ts)
+                    continue;
+
                 foreach (var handler in controller.Handlers)
                 {
                     var query = handler.Query;
@@ -279,6 +282,10 @@ public class TsGenerator : AbstractGenerator
             WriteLine("export interface GeneratedAPI {");
             foreach (var controller in project.Controllers)
             {
+                if (controller.TypescriptProject != ts)
+                {
+                    continue;
+                }
                 foreach (var handler in controller.Handlers)
                 {
                     var query = handler.Query;
@@ -295,6 +302,7 @@ public class TsGenerator : AbstractGenerator
             WriteLine();
 
             var groups = project.Controllers
+                .Where(c => c.TypescriptProject == ts)
                 .SelectMany(c => c.Handlers)
                 .GroupBy(h => h.IsPost)
                 .OrderBy(g => g.Key)

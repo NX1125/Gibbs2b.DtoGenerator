@@ -2,7 +2,7 @@ using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using NpgsqlTypes;
 
-namespace Gibbs2b.DtoGenerator;
+namespace Gibbs2b.DtoGenerator.Design.SQL;
 
 public static class DbContextExtensions
 {

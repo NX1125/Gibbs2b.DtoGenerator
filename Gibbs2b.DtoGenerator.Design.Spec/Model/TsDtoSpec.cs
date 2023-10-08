@@ -1,6 +1,7 @@
 using System.Reflection;
 using System.Text.Json.Serialization;
 using Gibbs2b.DtoGenerator.Annotation;
+using Gibbs2b.DtoGenerator.Design.Config;
 
 namespace Gibbs2b.DtoGenerator.Model;
 

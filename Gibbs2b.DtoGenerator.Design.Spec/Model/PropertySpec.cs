@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
-using NpgsqlTypes;
+using Gibbs2b.DtoGenerator.Design.Config;
 
 namespace Gibbs2b.DtoGenerator.Model;
 
@@ -121,7 +121,8 @@ public class PropertySpec : IPropertySpec, ITypescriptProperty
         {
             _typeNameType = TypeNameEnum.Guid;
         }
-        else if (type == typeof(NpgsqlTsVector))
+        // else if (type == typeof(NpgsqlTsVector))
+        else if (type.FullName == "NpgsqlTypes.NpgsqlTsVector")
         {
             _typeNameType = TypeNameEnum.TsVector;
         }

@@ -1,5 +1,6 @@
 using System.Reflection;
 using Gibbs2b.DtoGenerator.Annotation;
+using Gibbs2b.DtoGenerator.Design.Config;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Gibbs2b.DtoGenerator.Model;

@@ -1,5 +1,3 @@
-using Microsoft.CodeAnalysis;
-
 namespace Gibbs2b.DtoGenerator.Annotation;
 
 [AttributeUsage(AttributeTargets.Class)]

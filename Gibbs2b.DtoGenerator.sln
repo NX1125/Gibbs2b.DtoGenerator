@@ -1,8 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# 
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gibbs2b.DtoGenerator", "Gibbs2b.DtoGenerator\Gibbs2b.DtoGenerator.csproj", "{D7965F4D-FC8E-49C0-A7F3-3B4A0202D4BD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gibbs2b.DtoGenerator.Design", "Gibbs2b.DtoGenerator.Design\Gibbs2b.DtoGenerator.Design.csproj", "{5A6215B4-015C-4D90-9437-309CA5C05CFE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gibbs2b.DtoGenerator.Design.SQL", "Gibbs2b.DtoGenerator.Design.SQL\Gibbs2b.DtoGenerator.Design.SQL.csproj", "{12739D38-242E-4797-811D-28520C8466DE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gibbs2b.DtoGenerator.Design.Config", "Gibbs2b.DtoGenerator.Design.Config\Gibbs2b.DtoGenerator.Design.Config.csproj", "{1F106D3E-6208-4A04-BE76-F7498DDA12D8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -18,5 +23,13 @@ Global
 		{5A6215B4-015C-4D90-9437-309CA5C05CFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5A6215B4-015C-4D90-9437-309CA5C05CFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5A6215B4-015C-4D90-9437-309CA5C05CFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{12739D38-242E-4797-811D-28520C8466DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{12739D38-242E-4797-811D-28520C8466DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{12739D38-242E-4797-811D-28520C8466DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{12739D38-242E-4797-811D-28520C8466DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F106D3E-6208-4A04-BE76-F7498DDA12D8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F106D3E-6208-4A04-BE76-F7498DDA12D8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F106D3E-6208-4A04-BE76-F7498DDA12D8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F106D3E-6208-4A04-BE76-F7498DDA12D8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
