@@ -21,8 +21,16 @@ public class TsDtoSpec
         ? Project.FindTypescriptProjectByNamespace(new NamespaceSpec(Type.Namespace!))
         : Project.FindTypescriptProjectByName(ProjectName);
 
-    public IEnumerable<string> TsPaths => TsProject!.Paths
-        .Select(path => Path.Combine(path, $"{DtoName.KebabCase}.dto.gen.ts"));
+    public IEnumerable<string> TsPaths
+    {
+        get
+        {
+            if (TsProject == null)
+                throw new InvalidOperationException($"No project found for {Type.FullName}");
+            return TsProject!.Paths
+                .Select(path => Path.Combine(path, $"{DtoName.KebabCase}.dto.gen.ts"));
+        }
+    }
 
     public TsDtoSpec(Type type, ProjectSpec project)
     {
