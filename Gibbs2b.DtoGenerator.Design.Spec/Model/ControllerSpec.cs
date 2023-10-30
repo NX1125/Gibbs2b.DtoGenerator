@@ -80,10 +80,6 @@ public class HandlerSpec
         // whether the first parameter uses FromForm attribute
         IsForm = parameter.GetCustomAttribute<FromFormAttribute>() != null;
 
-        Query = controller.Project.TsDto
-            .SelectMany(d => d.Models)
-            .Single(d => d.Type == parameter.ParameterType);
-
         var returnType = methodInfo.ReturnType;
 
         if (returnType.IsGenericType && returnType.GetGenericTypeDefinition() == typeof(Task<>))
@@ -105,5 +101,14 @@ public class HandlerSpec
             throw new Exception($"Response type {returnType.Name} not found");
 
         Name = Response.Dto.DtoName;
+
+        Query = controller.Project.TsDto
+            .SelectMany(d => d.Models)
+            .SingleOrDefault(d => d.Type == parameter.ParameterType);
+
+        if (Query == null)
+        {
+            throw new Exception($"Query type {Name}.{parameter.ParameterType.Name} not found (maybe missing [GenTsDtoModel]?)");
+        }
     }
 }
