@@ -26,7 +26,7 @@ public class EnumSpec
     [Obsolete]
     public ICollection<string> Values { get; set; } = null!;
 
-    public bool TsArrayEnabled => Type.GetCustomAttribute<GenEnumAttribute>()!.TsArrayEnabled;
+    public bool TsArrayEnabled => Type.GetCustomAttribute<GenEnumAttribute>()?.TsArrayEnabled ?? false;
 
     public Type? ConverterType => Type.GetCustomAttribute<JsonConverterAttribute>()?.ConverterType;
 

@@ -93,6 +93,21 @@ public class ProjectSpec
             }
         }
 
+        foreach (var dto in TsDto)
+        {
+            foreach (var model in dto.Models)
+            {
+                foreach (var property in model.TsProperties)
+                {
+                    if (property.BaseType.IsEnum && Enums.All(e => e.Type != property.BaseType))
+                    {
+                        Console.WriteLine($"Adding enum {property.BaseType}");
+                        Enums.Add(new(property.BaseType));
+                    }
+                }
+            }
+        }
+
         // TODO: Primary keys
         // TODO: Foreign keys
 
