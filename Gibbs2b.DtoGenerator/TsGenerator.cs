@@ -36,9 +36,19 @@ public class TsGenerator : AbstractGenerator
                 WriteLine();
                 WriteLine($"enum {e.Name} {{");
 
-                var values = e.Type.GetEnumValues()
-                    .Cast<int>()
-                    .ToList();
+                List<int> values;
+                try
+                {
+                    values = e.Type.GetEnumValues()
+                        .Cast<int>()
+                        .ToList();
+                }
+                catch (InvalidCastException)
+                {
+                    throw new InvalidOperationException(
+                        $"Enum {e.Name} has values that are not integers. " +
+                        $"Please use explicit values for all enum values. {e.Type.FullName}");
+                }
 
                 IDictionary<string, string> pairs = e.IsJsonName
                     ? e.Type
