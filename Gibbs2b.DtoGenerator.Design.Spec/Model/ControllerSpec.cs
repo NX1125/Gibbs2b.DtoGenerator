@@ -7,6 +7,7 @@ namespace Gibbs2b.DtoGenerator.Model;
 
 public class ControllerSpec
 {
+    public Type Type { get; }
     public ProjectSpec Project { get; }
     public string? Area { get; set; }
     public string Name { get; set; }
@@ -17,6 +18,8 @@ public class ControllerSpec
 
     public ControllerSpec(Type type, ProjectSpec project, GenControllerAttribute attr)
     {
+        Type = type;
+
         if (!type.IsSubclassOf(typeof(ControllerBase)))
         {
             throw new ArgumentException($"Type {type.Name} is not a controller");
@@ -48,13 +51,17 @@ public class HandlerSpec
     public ControllerSpec Controller { get; set; }
     public NameSpec Name { get; set; }
     public string RouteName { get; set; }
+    public RouteAttribute RouteAttribute { get; set; }
 
     public bool IsPost { get; set; }
     public bool IsForm { get; set; }
 
     public string Route
     {
-        get => _route ?? $"/{Controller.Area}/{Controller.Name}/{RouteName}".Replace("//", "/");
+        get => _route ?? RouteAttribute.Template
+            .Replace("[area]", Controller.Area ?? string.Empty)
+            .Replace("[controller]", Controller.Name)
+            .Replace("[action]", RouteName);
         set => _route = value;
     }
 
@@ -74,6 +81,13 @@ public class HandlerSpec
         var parameter = methodInfo
             .GetParameters()
             .First();
+
+        RouteAttribute = controller.Type.GetCustomAttribute<RouteAttribute>()!;
+
+        if (RouteAttribute == null)
+        {
+            throw new ArgumentException($"Method {controller.Area}/{controller.Name}/{methodInfo.Name} has no RouteAttribute");
+        }
 
         RouteName = methodInfo.Name;
         IsPost = methodInfo.GetCustomAttribute<HttpPostAttribute>() != null;
