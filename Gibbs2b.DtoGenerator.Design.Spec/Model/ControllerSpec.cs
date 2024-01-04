@@ -112,7 +112,7 @@ public class HandlerSpec
             .SingleOrDefault(d => d.Type == returnType);
 
         if (Response == null)
-            throw new Exception($"Response type {returnType.Name} not found");
+            throw new Exception($"Response type {returnType.Name} not found ({controller.Name}.{methodInfo.Name})");
 
         Name = Response.Dto.DtoName;
 
