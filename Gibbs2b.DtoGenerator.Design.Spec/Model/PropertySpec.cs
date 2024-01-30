@@ -198,6 +198,7 @@ public class PropertySpec : IPropertySpec, ITypescriptProperty
     {
         return SolveEnumerable(type, typeof(Array), typeof(Array), EnumerableType.Array)
                ?? SolveEnumerable(type, typeof(IList), typeof(IList<>), EnumerableType.List)
+               ?? SolveEnumerable(type, typeof(List<>), typeof(List<>), EnumerableType.List)
                ?? SolveEnumerable(type, typeof(ICollection), typeof(ICollection<>), EnumerableType.Collection)
                ?? SolveEnumerable(type, typeof(IEnumerable), typeof(IEnumerable<>), EnumerableType.Enumerable)
                ?? SolveEnumerable(type, typeof(IDictionary), typeof(IDictionary<,>), EnumerableType.Dictionary)
