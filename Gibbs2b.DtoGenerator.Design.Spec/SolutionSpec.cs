@@ -14,9 +14,6 @@ public class SolutionSpec
 
     public string Path { get; set; } = null!;
 
-    [Obsolete]
-    public ICollection<ProjectSpec> Projects { get; set; } = new List<ProjectSpec>();
-
     public IDictionary<string, PythonProjectSpec> PythonProjects { get; set; } =
         new Dictionary<string, PythonProjectSpec>();
 
@@ -25,7 +22,7 @@ public class SolutionSpec
     /// <summary>
     /// Currently only one project is supported.
     /// </summary>
-    public ProjectSpec Project => Projects.Single();
+    public ProjectSpec Project { get; set; }
 
     public string? DefaultPythonProjectPath
     {
@@ -39,12 +36,13 @@ public class SolutionSpec
 
     public void AddProject(ProjectSpec project)
     {
-        if (Projects.Count > 0)
+        if (Project != null)
             throw new Exception("Only one project is currently supported");
 
         project.Solution = this;
         project.SourcePath = System.IO.Path.Combine(Path, project.Name.Namespace);
-        Projects.Add(project);
+
+        Project = project;
     }
 
     public void AddProject(Assembly assembly)

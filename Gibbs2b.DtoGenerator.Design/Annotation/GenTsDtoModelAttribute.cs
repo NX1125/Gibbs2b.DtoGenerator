@@ -4,4 +4,6 @@ namespace Gibbs2b.DtoGenerator.Annotation;
 public class GenTsDtoModelAttribute : Attribute
 {
     public bool NullableBool { get; set; }
+
+    public string? ProjectName { get; set; }
 }

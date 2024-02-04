@@ -1,21 +1,43 @@
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
-using Gibbs2b.DtoGenerator.Annotation;
+using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 
 namespace Gibbs2b.DtoGenerator.Model;
 
-public class TsDtoPropertySpec : PropertySpec
+public class TsDtoPropertySpec
 {
+    public NameSpec Name { get; set; }
+    public TsTypeSpec Type { get; set; }
+    public PropertyOptions Options { get; set; } = new();
     public TsDtoModelSpec ParentDto { get; }
 
-    public TsDtoModelSpec? TsTypeModel => ParentDto.Dto.Models
-        .SingleOrDefault(t => t.Type == BaseType);
-
-    public override bool IsModel => ParentDto.Dto.Models is { Length: >= 0 } && TsTypeModel != null;
-
-    public GenTsDtoOpaqueModelAttribute? OpaqueModel => BaseType.GetCustomAttribute<GenTsDtoOpaqueModelAttribute>();
-
-    public TsDtoPropertySpec(PropertyInfo prop, TsDtoModelSpec parent) : base(prop, parent)
+    public TsDtoPropertySpec(PropertyInfo prop, TsDtoModelSpec parent)
     {
+        Property = prop;
         ParentDto = parent;
+        Name = new(prop.Name);
+
+        Options.IsUrl = prop.GetCustomAttribute<UrlAttribute>() != null;
+        Options.NotMapped = prop.GetCustomAttribute<NotMappedAttribute>() != null;
+
+        Options.JsonB = prop.GetCustomAttribute<ColumnAttribute>()?.TypeName == "jsonb";
+        Options.Key = prop.GetCustomAttribute<KeyAttribute>() != null || Name.CapitalCase == "Id";
+        Options.JsonIgnore = prop.GetCustomAttribute<JsonIgnoreAttribute>()?.Condition;
+
+        Options.Required = prop.GetCustomAttribute<RequiredAttribute>() != null;
+
+        var pattern = prop.GetCustomAttribute<RegularExpressionAttribute>()?.Pattern;
+        Options.Regex = pattern != null ? new Regex(pattern) : null;
+        Options.Required |= Options.Key;
+        Options.Obsolete = prop.GetCustomAttribute<ObsoleteAttribute>() != null;
+
+        Options.MaxLength = prop.GetCustomAttribute<MaxLengthAttribute>()?.Length;
+        Options.MinLength = prop.GetCustomAttribute<MinLengthAttribute>()?.Length;
+
+        Type = TsTypeSpec.Parse(prop.PropertyType, parent, this);
     }
+
+    public PropertyInfo Property { get; set; }
 }

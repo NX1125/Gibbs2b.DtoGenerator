@@ -107,8 +107,8 @@ public class HandlerSpec
             returnType = returnType.GetGenericArguments()[0];
         }
 
-        Response = controller.Project.TsDto
-            .SelectMany(d => d.Models)
+        Response = controller.Project.TsDto.Values
+            .SelectMany(d => d.Models.Values)
             .SingleOrDefault(d => d.Type == returnType);
 
         if (Response == null)
@@ -116,8 +116,8 @@ public class HandlerSpec
 
         Name = Response.Dto.DtoName;
 
-        Query = controller.Project.TsDto
-            .SelectMany(d => d.Models)
+        Query = controller.Project.TsDto.Values
+            .SelectMany(d => d.Models.Values)
             .SingleOrDefault(d => d.Type == parameter.ParameterType);
 
         if (Query == null)

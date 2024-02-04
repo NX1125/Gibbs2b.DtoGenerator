@@ -1,39 +1,38 @@
 using System.Reflection;
 using Gibbs2b.DtoGenerator.Annotation;
 using Gibbs2b.DtoGenerator.Model;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Gibbs2b.DtoGenerator.Design.Config;
 
 public class ProjectSpec
 {
+    public static ILogger Logger { get; private set; }
+
     public string SourcePath { get; set; } = null!;
 
     public NamespaceSpec Name { get; set; } = null!;
 
     public FileInfo CsprojPath => new(Path.Combine($"{SourcePath}", $"{Name}.csproj"));
 
-    public IList<DtoSpecFactory> DtoSpecFactories { get; } = new List<DtoSpecFactory>();
+    public Dictionary<Type, TsDtoSpec> TsDto { get; } = new();
 
-    public IList<ModelSpec> Models { get; set; } = new List<ModelSpec>();
-    public IList<EnumSpec> Enums { get; set; } = new List<EnumSpec>();
-    public IList<DtoSpec> Dto { get; set; } = new List<DtoSpec>();
-    public IList<TsDtoSpec> TsDto { get; set; } = new List<TsDtoSpec>();
-
-    public IEnumerable<DtoSpec> Views => Dto.Where(d => d.IsView);
-
-    public string ContextPath { get; set; } = null!;
-    public NamespaceSpec ContextNamespace { get; set; } = null!;
-    public NameSpec ContextName { get; set; } = null!;
+    public Dictionary<Type, TsDtoOpaqueModelSpec> TsOpaqueModels { get; } = new();
 
     public SolutionSpec Solution { get; internal set; } = null!;
+
+    public Dictionary<Type, EnumSpec> Enums { get; } = new();
 
     /// <summary>
     /// Used for database views.
     /// </summary>
     public ViewNamespacePrefix[] Prefixes { get; set; } = Array.Empty<ViewNamespacePrefix>();
 
-    public ICollection<ControllerSpec> Controllers { get; }
+    public ICollection<ControllerSpec> Controllers { get; private set; }
+
+    public List<TsTypeSpec.LazyTypeSpec> LazyTypeSpecs { get; } = new();
+
+    public Assembly Assembly { get; }
 
     public ProjectSpec(Action<string[]> main, SolutionSpec solution) : this(main.Method.Module.Assembly, solution)
     {
@@ -43,82 +42,48 @@ public class ProjectSpec
     {
         Solution = solution;
 
+        Assembly = assembly;
         Name = new NamespaceSpec(assembly);
+    }
 
-        foreach (var type in assembly.GetTypes())
+    public void Load(ILogger logger)
+    {
+        Logger = logger;
+
+        foreach (var type in Assembly.GetTypes())
         {
-            var model = type.GetCustomAttribute<GenModelAttribute>();
-            if (model != null)
+            if (type.GetCustomAttribute<GenEnumAttribute>() != null)
             {
-                Models.Add(new ModelSpec(type)
-                {
-                    Project = this,
-                    NotMapped = model.NotMapped,
-                });
-            }
-            else if (type.GetCustomAttribute<GenEnumAttribute>() != null)
-            {
-                Enums.Add(new EnumSpec(type));
-            }
-            else if (type.IsSubclassOf(typeof(DtoSpecFactory)))
-            {
-                var factory = (DtoSpecFactory) Activator.CreateInstance(type)!;
-                factory.Project = this;
-                DtoSpecFactories.Add(factory);
-            }
-            else if (type.IsSubclassOf(typeof(DbContext)))
-            {
-                ContextNamespace = new NamespaceSpec(type);
-                ContextPath = Path.Combine(Path.Combine(ContextNamespace.Namespace
-                    .Remove(0, Name.Namespace.Length)
-                    .Split('.')), type.Name);
-                ContextName = new(type.Name);
+                Enums.Add(type, new(type));
             }
             else if (type.GetCustomAttribute<GenTsDtoAttribute>() != null)
             {
-                TsDto.Add(new TsDtoSpec(type, this));
+                TsDto.Add(type, new(type, this));
             }
-        }
-
-        foreach (var model in Models)
-        {
-            model.LoadProperties();
-        }
-
-        foreach (var dto in TsDto)
-        {
-            foreach (var model in dto.Models)
+            else if (type.GetCustomAttribute<GenTsDtoOpaqueModelAttribute>() != null)
             {
-                model.LoadTsProperties();
+                TsOpaqueModels.Add(type, new(type, this));
             }
         }
 
-        foreach (var dto in TsDto)
+        var rootModels = TsDto.Values
+            .SelectMany(dto => dto.Models.Values)
+            .ToArray();
+
+        foreach (var model in rootModels)
         {
-            foreach (var model in dto.Models)
-            {
-                foreach (var property in model.TsProperties)
-                {
-                    if (property.BaseType.IsEnum && Enums.All(e => e.Type != property.BaseType))
-                    {
-                        Console.WriteLine($"Adding enum {property.BaseType}");
-                        Enums.Add(new(property.BaseType));
-                    }
-                }
-            }
+            model.LoadTsProperties();
         }
 
-        // TODO: Primary keys
-        // TODO: Foreign keys
-
-        foreach (var factory in DtoSpecFactories
-                     .OrderByDescending(f => f.IsView))
+        // needs to be with iterator as the Solve method can add more lazy types
+        for (var i = 0; i < LazyTypeSpecs.Count; i++)
         {
-            var dto = factory.CreateSpec();
-            Dto.Add(dto);
+            var lazy = LazyTypeSpecs[i];
+            Logger.LogInformation("Solving lazy type {0}", lazy.Type);
+            lazy.Solve();
         }
 
-        Controllers = assembly
+        Controllers = Assembly
             .GetTypes()
             .Where(t => t.GetCustomAttribute<GenControllerAttribute>() != null)
             .Select(t => new ControllerSpec(t, this, t.GetCustomAttribute<GenControllerAttribute>()!))
@@ -154,20 +119,54 @@ public class ProjectSpec
             .SingleOrDefault(p => p.Name == name);
     }
 
-    public ModelSpec? GetModel<TModel>()
+    public EnumSpec? GetOrLoadEnum(Type type)
     {
-        return GetModel(typeof(TModel));
+        if (Enums.TryGetValue(type, out var spec))
+            return spec;
+
+        if (type.IsEnum)
+        {
+            Enums.Add(type, new(type));
+            return Enums[type];
+        }
+
+        return null;
     }
 
-    public ModelSpec? GetModel(Type type)
+    public TsDtoModelSpec? GetModel(Type type)
     {
-        return Models
-            .FirstOrDefault(model => model.Type == type);
+        throw new NotImplementedException();
     }
 
-    public EnumSpec? GetEnum(Type type)
+    public TsDtoModelSpec? GetOrLoadModel(Type type)
     {
-        return Enums
-            .FirstOrDefault(model => model.Type == type);
+        // find parent dto group
+        var parent = type;
+        while (parent != null)
+        {
+            if (TsDto.TryGetValue(parent, out var dto))
+            {
+                if (dto.Models.TryGetValue(type, out var model))
+                    return model;
+
+                model = dto.Models[type] = new(type, dto);
+                model.LoadTsProperties();
+                return model;
+            }
+
+            parent = parent.DeclaringType;
+        }
+
+        if (type.GetCustomAttribute<GenTsDtoModelAttribute>() != null)
+        {
+            // A lone model
+            var dto = new TsDtoSpec(type, this);
+            var model = dto.Models[type] = new(type, dto);
+            TsDto.Add(type, dto);
+            model.LoadTsProperties();
+            return model;
+        }
+
+        return null;
     }
 }

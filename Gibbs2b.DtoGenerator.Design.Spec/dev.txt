@@ -1,0 +1,68 @@
+
+Generator features:
+
+- Handlers
+- Controllers
+- DTO classes
+- Enums
+
+Considerations:
+- All DTOs and handlers are generated as TS interfaces. All enums too.
+- A DTO has properties which is mapped to TS properties. All DTO models are grouped into a DTO group.
+- A DTO model is marked with an attribute, and a property can be a DTO model, but it does not have to be.
+- A DTO has a target TS project. In PPI case, there is common and admin.
+- A handler has a target TS project. In PPI case, there is common and admin.
+- An enum has a target TS project. In PPI case, there is common and admin.
+- Target projects can be explicitly set, or they can be inferred from the namespace.
+- An enum has a typescript enum
+- An enum may have a list of values
+- An enum may have a set of values
+- An opaque model is a model that is not inspected, and is just a placeholder for a model that is manually created.
+- An opaque model has a path and a TS name
+- A property can be optional
+
+Code:
+
+project
+    load project
+        enums = find all classes with enum attribute
+        opaque models = find all classes with opaque model attribute
+
+        dto groups = find all classes with DTO group attribute (new DTO group)
+
+        foreach dto group
+            foreach class
+                load model
+
+        foreach controller with attribute
+            load handler
+
+    load model by type
+        for each dto group
+            find model by type and load it
+
+dto group
+    new
+        classes = find all classes with DTO model attribute
+
+    load model
+        find model by class type
+        if not found
+            load model
+        return model
+
+dto model
+    new
+        props = load all properties
+    load model
+        for each property
+            load property
+
+dto model property
+    new
+        name = property name
+        type = property type
+    load property
+        if type is unknown
+            try to load it as a model from project
+
