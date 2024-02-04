@@ -250,6 +250,8 @@ public enum EnumerableType
     Collection,
     Array,
     List,
+
+    [Obsolete]
     Dictionary,
 }
 
