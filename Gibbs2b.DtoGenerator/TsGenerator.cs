@@ -1,5 +1,7 @@
+using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
+using Gibbs2b.DtoGenerator.Annotation;
 using Microsoft.Extensions.Logging;
 using Gibbs2b.DtoGenerator.Model;
 
@@ -193,6 +195,11 @@ public class TsGenerator : AbstractGenerator
                             builder.Append("?: ");
                             ToTypeString(property, property.Type, builder);
                             builder.Append(" | null | undefined");
+                        }
+                        else if (property.Property.GetCustomAttribute<TsOptionalAttribute>() != null)
+                        {
+                            builder.Append("?: ");
+                            ToTypeString(property, property.Type, builder);
                         }
                         else
                         {
