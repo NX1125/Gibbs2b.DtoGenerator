@@ -96,9 +96,9 @@ public class SolutionSpec
         Path = System.IO.Path.Combine(CommonPath!, Path);
         foreach (var project in TypescriptProjects)
         {
-            for (var i = 0; i < project.Paths.Length; i++)
+            for (var i = 0; i < project.ProjectPaths.Length; i++)
             {
-                project.Paths[i] = System.IO.Path.Combine(CommonPath!, project.Paths[i]);
+                project.ProjectPaths[i] = System.IO.Path.Combine(CommonPath!, project.ProjectPaths[i]);
             }
         }
     }

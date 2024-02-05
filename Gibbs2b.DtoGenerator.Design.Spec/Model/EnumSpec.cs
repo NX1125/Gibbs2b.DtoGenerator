@@ -31,4 +31,8 @@ public class EnumSpec
     public Type? ConverterType => Type.GetCustomAttribute<JsonConverterAttribute>()?.ConverterType;
 
     public bool IsJsonName => ConverterType == typeof(JsonStringEnumConverter);
+
+    public string TsEnumPath { get; set; }
+
+    public string? TsArrayPath { get; set; }
 }

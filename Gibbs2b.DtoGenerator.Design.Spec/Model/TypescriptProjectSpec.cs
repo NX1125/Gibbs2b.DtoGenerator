@@ -5,7 +5,7 @@ namespace Gibbs2b.DtoGenerator.Model;
 public class TypescriptProjectSpec
 {
     public string Name { get; set; } = null!;
-    public string[] Paths { get; set; } = Array.Empty<string>();
+    public string[] ProjectPaths { get; set; } = Array.Empty<string>();
 
     [JsonIgnore]
     public NamespaceSpec Namespace
@@ -25,4 +25,8 @@ public class TypescriptProjectSpec
         get => Namespaces.Select(x => x.ToString()).ToArray();
         set => Namespaces = value.Select(x => new NamespaceSpec(x)).ToArray();
     }
+
+    public string DefaultDtoPath { get; set; } = null!;
+    public string? DefaultEnumPath { get; set; }
+    public string DefaultHandlerPath { get; set; } = null!;
 }
