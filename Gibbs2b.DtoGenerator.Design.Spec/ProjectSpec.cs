@@ -64,6 +64,22 @@ public class ProjectSpec
             {
                 TsOpaqueModels.Add(type, new(type, this));
             }
+            else if (type.GetCustomAttribute<GenTsDtoModelAttribute>() != null)
+            {
+                var parent = type;
+                while (parent != null)
+                {
+                    if (parent.GetCustomAttribute<GenTsDtoAttribute>() != null)
+                    {
+                        break;
+                    }
+
+                    parent = parent.DeclaringType;
+                }
+
+                if (parent == null)
+                    TsDto.Add(type, new(type, this));
+            }
         }
 
         var rootModels = TsDto.Values
