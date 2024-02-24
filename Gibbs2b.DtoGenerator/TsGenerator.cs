@@ -170,7 +170,10 @@ public class TsGenerator : AbstractGenerator
                                     });
                                     break;
                                 case TsTypeSpec.EnumTypeSpec enumType:
-                                    imports.Add(_filesToImport.Single(x => x.Enum == enumType.Enum));
+                                    var enumToImport = _filesToImport.SingleOrDefault(x => x.Enum == enumType.Enum);
+                                    if (enumToImport == null)
+                                        throw new InvalidOperationException($"Enum {enumType.Enum.Name} not found");
+                                    imports.Add(enumToImport);
                                     break;
                                 case TsTypeSpec.LazyTypeSpec lazy when lazy.Model.Model.Dto != dto:
                                     imports.Add(_filesToImport.Single(x => x.Model == lazy.Model.Model));
@@ -285,6 +288,7 @@ public class TsGenerator : AbstractGenerator
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
+
                 break;
             case TsTypeSpec.ArrayTypeSpec array:
                 ToTypeString(property, array.BaseType, builder);
@@ -292,6 +296,7 @@ public class TsGenerator : AbstractGenerator
                 {
                     builder.Append("[]");
                 }
+
                 break;
             case TsTypeSpec.DictionaryTypeSpec dictionary:
                 switch (dictionary.KeyType)
@@ -313,6 +318,7 @@ public class TsGenerator : AbstractGenerator
                     default:
                         throw new NotSupportedException($"{dictionary.KeyType.GetType().FullName} at {property.Name} in {property.ParentDto.Type}");
                 }
+
                 break;
             case TsTypeSpec.EnumerableTypeSpec enumerable:
                 ToTypeString(property, enumerable.BaseType, builder);
@@ -335,6 +341,7 @@ public class TsGenerator : AbstractGenerator
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
+
                 break;
             default:
                 throw new NotImplementedException(type.GetType().FullName);
@@ -397,6 +404,7 @@ public class TsGenerator : AbstractGenerator
                 {
                     continue;
                 }
+
                 foreach (var handler in controller.Handlers)
                 {
                     var query = handler.Query;
