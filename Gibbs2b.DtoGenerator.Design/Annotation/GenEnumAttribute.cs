@@ -4,4 +4,5 @@ namespace Gibbs2b.DtoGenerator.Annotation;
 public class GenEnumAttribute : Attribute
 {
     public bool TsArrayEnabled { get; set; }
+    public string? DtoName { get; set; }
 }

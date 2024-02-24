@@ -35,4 +35,13 @@ public class EnumSpec
     public string TsEnumPath { get; set; }
 
     public string? TsArrayPath { get; set; }
+
+    public NameSpec DtoName
+    {
+        get
+        {
+            var dtoName = Type.GetCustomAttribute<GenEnumAttribute>()?.DtoName;
+            return dtoName != null ? new(dtoName) : Name;
+        }
+    }
 }

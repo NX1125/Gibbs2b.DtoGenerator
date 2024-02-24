@@ -42,4 +42,19 @@ public class TsDtoSpec
             .ToArray();
         Models = RootModels.ToDictionary(m => m.Type);
     }
+
+    public void AddModel(Type type)
+    {
+        NestedTypes.Add(type);
+        var model = new TsDtoModelSpec(type, this);
+        Models.Add(type, model);
+    }
+
+    public void AddModel(TsDtoModelSpec model)
+    {
+        if (Models.ContainsKey(model.Type))
+            throw new InvalidOperationException($"Model {model.Type.Name} already exists in Dto {Type.Name}");
+        NestedTypes.Add(model.Type);
+        Models.Add(model.Type, model);
+    }
 }

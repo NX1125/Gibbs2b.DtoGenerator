@@ -50,6 +50,8 @@ public class ProjectSpec
     {
         Logger = logger;
 
+        List<(Type, Type)> forwards = new();
+
         foreach (var type in Assembly.GetTypes())
         {
             if (type.GetCustomAttribute<GenEnumAttribute>() != null)
@@ -77,9 +79,25 @@ public class ProjectSpec
                     parent = parent.DeclaringType;
                 }
 
-                if (parent == null)
+                if (parent != null)
+                    continue;
+
+                parent = type.GetCustomAttribute<GenTsDtoModelAttribute>()!.ParentType;
+
+                if (parent != null)
+                {
+                    forwards.Add((type, parent));
+                }
+                else
+                {
                     TsDto.Add(type, new(type, this));
+                }
             }
+        }
+
+        foreach (var (type, parent) in forwards)
+        {
+            TsDto[parent].AddModel(type);
         }
 
         var rootModels = TsDto.Values
@@ -165,7 +183,8 @@ public class ProjectSpec
                 if (dto.Models.TryGetValue(type, out var model))
                     return model;
 
-                model = dto.Models[type] = new(type, dto);
+                model = new(type, dto);
+                dto.AddModel(model);
                 model.LoadTsProperties();
                 return model;
             }
@@ -173,12 +192,24 @@ public class ProjectSpec
             parent = parent.DeclaringType;
         }
 
-        if (type.GetCustomAttribute<GenTsDtoModelAttribute>() != null)
+        var attr = type.GetCustomAttribute<GenTsDtoModelAttribute>();
+        if (attr != null)
         {
             // A lone model
-            var dto = new TsDtoSpec(type, this);
-            var model = dto.Models[type] = new(type, dto);
-            TsDto.Add(type, dto);
+            var dto = attr.ParentType != null
+                ? TsDto[attr.ParentType]
+                : new TsDtoSpec(type, this);
+            if (dto.Models.TryGetValue(type, out var model))
+                return model;
+
+            model = new(type, dto);
+            if (attr.ParentType == null)
+            {
+                TsDto.Add(type, dto);
+            }
+
+            dto.AddModel(model);
+
             model.LoadTsProperties();
             return model;
         }

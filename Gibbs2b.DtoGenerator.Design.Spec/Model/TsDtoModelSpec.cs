@@ -31,6 +31,7 @@ public class TsDtoModelSpec
             {
                 throw new InvalidOperationException($"Type {Type.Name} not found in Dto {Dto.DtoName}");
             }
+
             return i;
         }
     }
@@ -50,5 +51,10 @@ public class TsDtoModelSpec
             .GetProperties()
             .Select(p => new TsDtoPropertySpec(p, this))
             .ToArray();
+    }
+
+    public override string ToString()
+    {
+        return DtoName;
     }
 }
