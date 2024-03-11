@@ -3,15 +3,19 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Reflection;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+using Gibbs2b.DtoGenerator.Annotation;
 
 namespace Gibbs2b.DtoGenerator.Model;
 
 public class TsDtoPropertySpec
 {
+    private object[]? _possibleValues;
     public NameSpec Name { get; set; }
     public TsTypeSpec Type { get; set; }
     public PropertyOptions Options { get; set; } = new();
     public TsDtoModelSpec ParentDto { get; }
+
+    public object[]? PossibleValues => _possibleValues ??= Property.GetCustomAttribute<TsValueAttribute>()?.Values;
 
     public TsDtoPropertySpec(PropertyInfo prop, TsDtoModelSpec parent)
     {

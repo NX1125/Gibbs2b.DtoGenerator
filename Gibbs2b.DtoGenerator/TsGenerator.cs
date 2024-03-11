@@ -155,7 +155,8 @@ public class TsGenerator : AbstractGenerator
                 {
                     foreach (var property in model.TsProperties)
                     {
-                        if (property.Options.JsonIgnore == JsonIgnoreCondition.Always)
+                        if (property.Options.JsonIgnore == JsonIgnoreCondition.Always ||
+                            property.PossibleValues != null)
                             continue;
 
                         foreach (var type in GetTypesRecursively(property.Type))
@@ -209,14 +210,12 @@ public class TsGenerator : AbstractGenerator
                         else if (property.Type is TsTypeSpec.NullableTypeSpec nullable)
                         {
                             builder.Append("?: ");
-                            ToTypeString(property, nullable.BaseType, builder);
-                            builder.Append(" | null | undefined");
+                            ToTypeString(property, nullable.BaseType, builder, true);
                         }
                         else if (property.Options.JsonIgnore is not JsonIgnoreCondition.Never and not null)
                         {
                             builder.Append("?: ");
-                            ToTypeString(property, property.Type, builder);
-                            builder.Append(" | null | undefined");
+                            ToTypeString(property, property.Type, builder, true);
                         }
                         else if (property.Property.GetCustomAttribute<TsOptionalAttribute>() != null)
                         {
@@ -256,8 +255,37 @@ public class TsGenerator : AbstractGenerator
         }
     }
 
-    private void ToTypeString(TsDtoPropertySpec property, TsTypeSpec type, StringBuilder builder)
+    private void ToTypeString(TsDtoPropertySpec property, TsTypeSpec type, StringBuilder builder, bool isNullable = false)
     {
+        if (property.PossibleValues != null)
+        {
+            foreach (var v in property.PossibleValues)
+            {
+                switch (v)
+                {
+                    case string s:
+                        builder.Append("\n    | '");
+                        builder.Append(s);
+                        builder.Append('\'');
+                        break;
+                    case int i:
+                        builder.Append("\n    | ");
+                        builder.Append(i);
+                        break;
+                    default:
+                        throw new NotSupportedException($"Possible value {v} is not supported");
+                }
+            }
+
+            if (!isNullable)
+                return;
+
+            builder.Append("\n    | null");
+            builder.Append("\n    | undefined");
+
+            return;
+        }
+
         switch (type)
         {
             case TsTypeSpec.OpaqueTypeSpec opaque:
@@ -346,6 +374,9 @@ public class TsGenerator : AbstractGenerator
             default:
                 throw new NotImplementedException(type.GetType().FullName);
         }
+
+        if (isNullable)
+            builder.Append(" | null | undefined");
     }
 
     public void GenerateHandlers()
