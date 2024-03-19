@@ -200,7 +200,7 @@ public class TsGenerator : AbstractGenerator
                         if (property.Options.Obsolete)
                             WriteLine("/** @deprecated */");
 
-                        StringBuilder builder = new(property.Name.CamelCase);
+                        StringBuilder builder = new(property.TsName);
 
                         if (property.Property.GetCustomAttribute<TsRequiredAttribute>() != null)
                         {

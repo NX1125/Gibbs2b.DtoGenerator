@@ -4,6 +4,7 @@ using System.Reflection;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using Gibbs2b.DtoGenerator.Annotation;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Gibbs2b.DtoGenerator.Model;
 
@@ -14,6 +15,20 @@ public class TsDtoPropertySpec
     public TsTypeSpec Type { get; set; }
     public PropertyOptions Options { get; set; } = new();
     public TsDtoModelSpec ParentDto { get; }
+
+    public string TsName
+    {
+        get
+        {
+            var fromQuery = Property.GetCustomAttribute<FromQueryAttribute>();
+            if (fromQuery != null && !Regex.IsMatch(fromQuery.Name, @"^[a-zA-Z][a-zA-Z\d]*(\[\])?$"))
+            {
+                throw new Exception($"Invalid name for {Property.Name} in {Property.DeclaringType}");
+            }
+
+            return fromQuery?.Name.Trim('[', ']') ?? Name.CamelCase;
+        }
+    }
 
     public object[]? PossibleValues => _possibleValues ??= Property.GetCustomAttribute<TsValueAttribute>()?.Values;
 
