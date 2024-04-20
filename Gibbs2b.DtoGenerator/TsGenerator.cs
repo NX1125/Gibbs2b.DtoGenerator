@@ -120,6 +120,11 @@ public class TsGenerator : AbstractGenerator
             var project = _solution.Project;
             foreach (var dto in project.TsDto.Values)
             {
+                if (dto.DtoName == null)
+                    throw new NullReferenceException($"DtoName is null: {dto.Type}");
+                if (dto.TsProject == null)
+                    throw new NullReferenceException($"TsProject is null: {dto.Type}");
+
                 var absoluteFrom = Path.Combine(dto.TsProject!.DefaultDtoPath, $"{dto.DtoName.KebabCase}.dto.gen");
 
                 foreach (var model in dto.Models.Values.OrderBy(x => x.Index))
