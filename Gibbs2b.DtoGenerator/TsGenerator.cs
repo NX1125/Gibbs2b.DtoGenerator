@@ -195,6 +195,10 @@ public class TsGenerator : AbstractGenerator
 
                 foreach (var model in dto.Models.Values.OrderBy(x => x.Index))
                 {
+                    if (model.Type.GetCustomAttribute<ObsoleteAttribute>() != null)
+                    {
+                        WriteLine("/** @deprecated */");
+                    }
                     WriteLine($"export interface {model.DtoName} {{");
 
                     foreach (var property in model.TsProperties)
