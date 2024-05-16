@@ -91,7 +91,7 @@ public class SolutionSpec
         return data;
     }
 
-    private void UpdateBasePaths()
+    public void UpdateBasePaths()
     {
         Path = System.IO.Path.Combine(CommonPath!, Path);
         foreach (var project in TypescriptProjects)
