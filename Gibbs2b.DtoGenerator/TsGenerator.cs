@@ -210,6 +210,7 @@ public class TsGenerator : AbstractGenerator
                             WriteLine("/** @deprecated */");
 
                         StringBuilder builder = new(property.TsName);
+                        var tsOptional = property.Property.GetCustomAttribute<TsOptionalAttribute>();
 
                         if (property.Property.GetCustomAttribute<TsRequiredAttribute>() != null)
                         {
@@ -226,10 +227,10 @@ public class TsGenerator : AbstractGenerator
                             builder.Append("?: ");
                             ToTypeString(property, property.Type, builder, true);
                         }
-                        else if (property.Property.GetCustomAttribute<TsOptionalAttribute>() != null)
+                        else if (tsOptional != null)
                         {
                             builder.Append("?: ");
-                            ToTypeString(property, property.Type, builder);
+                            ToTypeString(property, property.Type, builder, tsOptional.Nullable);
                         }
                         else
                         {
