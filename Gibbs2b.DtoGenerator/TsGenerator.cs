@@ -215,7 +215,14 @@ public class TsGenerator : AbstractGenerator
                         if (property.Property.GetCustomAttribute<TsRequiredAttribute>() != null)
                         {
                             builder.Append(": ");
-                            ToTypeString(property, property.Type, builder);
+                            if (property.Type is TsTypeSpec.NullableTypeSpec nullable)
+                            {
+                                ToTypeString(property, nullable.BaseType, builder);
+                            }
+                            else
+                            {
+                                ToTypeString(property, property.Type, builder);
+                            }
                         }
                         else if (property.Type is TsTypeSpec.NullableTypeSpec nullable)
                         {
