@@ -71,6 +71,7 @@ public class HandlerSpec
     public HandlerSpec(MethodInfo methodInfo, ControllerSpec controller)
     {
         Controller = controller;
+        Method = methodInfo;
 
         // supports only one parameter
         if (methodInfo.GetParameters().Length != 1)
@@ -125,4 +126,6 @@ public class HandlerSpec
             throw new Exception($"Query type {Name}.{parameter.ParameterType.Name} not found (maybe missing [GenTsDtoModel]?)");
         }
     }
+
+    public MethodInfo Method { get; set; }
 }

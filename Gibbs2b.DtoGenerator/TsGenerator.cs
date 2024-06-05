@@ -461,6 +461,11 @@ public class TsGenerator : AbstractGenerator
                     var queryName = query!.DtoName;
                     var responseName = response!.DtoName;
 
+                    if (handler.Method.GetCustomAttribute<ObsoleteAttribute>() != null)
+                    {
+                        WriteLine("/** @deprecated */");
+                    }
+
                     WriteLine(
                         $"{handler.Name.CamelCase}(request: {queryName}, signal?: AbortSignal, config?: AxiosRequestConfig): Promise<AxiosResponse<{responseName}>>");
                 }
