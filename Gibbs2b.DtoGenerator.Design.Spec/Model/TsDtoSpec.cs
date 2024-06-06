@@ -23,13 +23,17 @@ public class TsDtoSpec
 
     internal List<Type> NestedTypes { get; }
 
+    public GenTsDtoAttribute? Attribute { get; set; }
+
     public TsDtoSpec(Type type, ProjectSpec project)
     {
         Type = type;
         Project = project;
         DtoName = new NameSpec(type.Name);
 
-        TsProjectName = type.GetCustomAttribute<GenTsDtoAttribute>()?.Project ??
+        Attribute = type.GetCustomAttribute<GenTsDtoAttribute>();
+
+        TsProjectName = Attribute?.Project ??
                         type.GetCustomAttribute<GenTsDtoModelAttribute>()?.ProjectName;
 
         NestedTypes = type

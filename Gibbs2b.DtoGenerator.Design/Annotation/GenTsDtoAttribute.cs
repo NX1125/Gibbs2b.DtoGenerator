@@ -4,4 +4,6 @@ namespace Gibbs2b.DtoGenerator.Annotation;
 public class GenTsDtoAttribute : Attribute
 {
     public string? Project { get; set; }
+
+    public string? ImportPath { get; set; }
 }

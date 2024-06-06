@@ -429,8 +429,9 @@ public class TsGenerator : AbstractGenerator
 
                     if (query?.Dto == response?.Dto)
                     {
+                        var importPath = query!.Dto.Attribute?.ImportPath ?? ".";
                         WriteLine(
-                            $"import {{ {query!.DtoName}, {response!.DtoName} }} from './{query.Dto.DtoName.KebabCase}.dto.gen'");
+                            $"import {{ {query!.DtoName}, {response!.DtoName} }} from '{importPath}/{query.Dto.DtoName.KebabCase}.dto.gen'");
                     }
                     else
                     {
