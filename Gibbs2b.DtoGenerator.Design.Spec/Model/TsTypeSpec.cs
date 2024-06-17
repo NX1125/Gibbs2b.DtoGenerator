@@ -63,9 +63,23 @@ public abstract class TsTypeSpec
                 return new DictionaryTypeSpec(ParseType(keyType, parentModel, prop), ParseType(valueType, parentModel, prop)) { ClrType = type };
             }
 
-            throw new NotImplementedException(type.FullName);
+            var argument = type
+                .GetGenericArguments()
+                .Single();
+
+            return new LazyGenericArgumentSpec
+            {
+                Argument = ParseType(argument, parentModel, prop),
+                Property = prop.Property,
+                Container = ParseType2(genericTypeDefinition, parentModel, prop),
+            };
         }
 
+        return ParseType2(type, parentModel, prop);
+    }
+
+    private static TsTypeSpec ParseType2(Type type, TsDtoModelSpec parentModel, TsDtoPropertySpec prop)
+    {
         if (type == typeof(int))
             return new PrimitiveTypeSpec(TypeNameEnum.Int) { ClrType = type };
         if (type == typeof(float))
@@ -90,6 +104,11 @@ public abstract class TsTypeSpec
         if (type == typeof(IFormFile))
             return new JsTypeSpec { Type = JsType.Blob };
 
+        if (type.IsGenericParameter)
+        {
+            return new GenericTypeSpec { GenericTypeName = type.Name };
+        }
+
         var project = parentModel.Project;
 
         if (project.TsOpaqueModels.TryGetValue(type, out var opaqueType))
@@ -111,7 +130,7 @@ public abstract class TsTypeSpec
             };
         }
 
-        var lazy = new LazyTypeSpec
+        LazyTypeSpec lazy = new()
         {
             Type = type,
             ParentModel = parentModel,
@@ -258,6 +277,19 @@ public abstract class TsTypeSpec
         }
     }
 
+    public class LazyGenericArgumentSpec : TsTypeSpec
+    {
+        public PropertyInfo Property { get; set; } = null!;
+        public TsTypeSpec Container { get; set; } = null!;
+        public TsTypeSpec Argument { get; set; } = null!;
+
+        public override IEnumerable<TsTypeSpec> GetChildren()
+        {
+            yield return Container;
+            yield return Argument;
+        }
+    }
+
     public class LazyTypeSpec : TsTypeSpec
     {
         public Type Type { get; set; } = null!;
@@ -291,6 +323,33 @@ public abstract class TsTypeSpec
                 throw new InvalidOperationException("Lazy type not solved");
 
             yield return Model;
+        }
+    }
+
+    public class GenericTypeSpec : TsTypeSpec
+    {
+        public string GenericTypeName { get; set; } = null!;
+
+        public bool IsArgument { get; set; }
+
+        public override IEnumerable<TsTypeSpec> GetChildren()
+        {
+            yield break;
+        }
+    }
+
+    public class GenericModelSpec : TsTypeSpec
+    {
+        public TsTypeSpec Model { get; set; } = null!;
+        public TsTypeSpec[] GenericArguments { get; set; } = null!;
+
+        public override IEnumerable<TsTypeSpec> GetChildren()
+        {
+            yield return Model;
+            foreach (var arg in GenericArguments)
+            {
+                yield return arg;
+            }
         }
     }
 

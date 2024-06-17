@@ -36,14 +36,31 @@ public class TsDtoModelSpec
         }
     }
 
+    public string? GenericTypeName { get; set; }
+
     public TsDtoModelSpec(Type type, TsDtoSpec dto)
     {
         Type = type;
         Dto = dto;
         DtoName = $"{dto.DtoName}_{type.Name}";
         Project = dto.Project;
-        NullableBool = type.GetCustomAttribute<GenTsDtoModelAttribute>()?.NullableBool ?? false;
+        ModelAttribute = type.GetCustomAttribute<GenTsDtoModelAttribute>();
+        NullableBool = ModelAttribute?.NullableBool ?? false;
+        // get parameter name, if any
+        GenericTypeName = type.IsGenericType
+            ? type
+                .GetGenericArguments()
+                .Select(x => x.Name)
+                .SingleOrDefault()
+            : null;
+        if (GenericTypeName != null)
+        {
+            var baseName = type.Name.Split('`')[0];
+            DtoName = $"{dto.DtoName}_{baseName}";
+        }
     }
+
+    public GenTsDtoModelAttribute? ModelAttribute { get; set; }
 
     internal void LoadTsProperties()
     {

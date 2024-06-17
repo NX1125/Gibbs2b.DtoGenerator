@@ -199,7 +199,8 @@ public class TsGenerator : AbstractGenerator
                     {
                         WriteLine("/** @deprecated */");
                     }
-                    WriteLine($"export interface {model.DtoName} {{");
+                    var generic = model.GenericTypeName != null ? $"<{model.GenericTypeName}>" : "";
+                    WriteLine($"export interface {model.DtoName}{generic} {{");
 
                     foreach (var property in model.TsProperties)
                     {
@@ -377,6 +378,9 @@ public class TsGenerator : AbstractGenerator
             case TsTypeSpec.LazyTypeSpec lazy:
                 builder.Append(lazy.Model.Model.DtoName);
                 break;
+            case TsTypeSpec.GenericTypeSpec generic:
+                builder.Append(generic.GenericTypeName);
+                break;
             case TsTypeSpec.JsTypeSpec js:
                 switch (js.Type)
                 {
@@ -387,6 +391,12 @@ public class TsGenerator : AbstractGenerator
                         throw new ArgumentOutOfRangeException();
                 }
 
+                break;
+            case TsTypeSpec.LazyGenericArgumentSpec lazy:
+                ToTypeString(property, lazy.Container, builder);
+                builder.Append('<');
+                ToTypeString(property, lazy.Argument, builder);
+                builder.Append('>');
                 break;
             default:
                 throw new NotImplementedException(type.GetType().FullName);
