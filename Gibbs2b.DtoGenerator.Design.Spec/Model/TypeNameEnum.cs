@@ -6,6 +6,7 @@ namespace Gibbs2b.DtoGenerator.Model;
 public enum TypeNameEnum
 {
     Unknown,
+    Object,
     Int,
     Long,
     Float,

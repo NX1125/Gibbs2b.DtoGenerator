@@ -98,6 +98,8 @@ public abstract class TsTypeSpec
             return new PrimitiveTypeSpec(TypeNameEnum.Bool) { ClrType = type };
         if (type == typeof(Guid))
             return new PrimitiveTypeSpec(TypeNameEnum.Guid) { ClrType = type };
+        if (type == typeof(object))
+            return new PrimitiveTypeSpec(TypeNameEnum.Object) { ClrType = type };
         if (type.FullName == "NpgsqlTypes.NpgsqlTsVector")
             return new PrimitiveTypeSpec(TypeNameEnum.TsVector) { ClrType = type };
 

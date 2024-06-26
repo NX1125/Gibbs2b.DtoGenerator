@@ -330,6 +330,9 @@ public class TsGenerator : AbstractGenerator
                     case TypeNameEnum.Guid:
                         builder.Append("string");
                         break;
+                    case TypeNameEnum.Object:
+                        builder.Append("any");
+                        break;
                     case TypeNameEnum.TsVector:
                     default:
                         throw new ArgumentOutOfRangeException();
