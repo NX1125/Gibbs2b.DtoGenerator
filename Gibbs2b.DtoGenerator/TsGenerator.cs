@@ -213,16 +213,16 @@ public class TsGenerator : AbstractGenerator
                         StringBuilder builder = new(property.TsName);
                         var tsOptional = property.Property.GetCustomAttribute<TsOptionalAttribute>();
 
-                        if (property.Property.GetCustomAttribute<TsRequiredAttribute>() != null)
+                        if (tsOptional is { Required: true })
                         {
                             builder.Append(": ");
                             if (property.Type is TsTypeSpec.NullableTypeSpec nullable)
                             {
-                                ToTypeString(property, nullable.BaseType, builder);
+                                ToTypeString(property, nullable.BaseType, builder, tsOptional.Nullable);
                             }
                             else
                             {
-                                ToTypeString(property, property.Type, builder);
+                                ToTypeString(property, property.Type, builder, tsOptional.Nullable);
                             }
                         }
                         else if (property.Type is TsTypeSpec.NullableTypeSpec nullable)
