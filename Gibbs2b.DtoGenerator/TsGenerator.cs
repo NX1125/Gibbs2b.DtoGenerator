@@ -249,6 +249,13 @@ public class TsGenerator : AbstractGenerator
                         WriteLine(builder.ToString());
                     }
 
+                    if (model.ModelAttribute is { AddValidationErrors: true })
+                    {
+                        if (model.TsProperties.Length > 0)
+                            WriteLine();
+                        WriteLine("errors?: { [key: string]: string[] }");
+                    }
+
                     WriteLine('}');
                     WriteLine();
                 }

@@ -8,4 +8,6 @@ public class GenTsDtoModelAttribute : Attribute
     public string? ProjectName { get; set; }
 
     public Type? ParentType { get; set; }
+
+    public bool AddValidationErrors { get; set; }
 }
