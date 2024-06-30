@@ -153,6 +153,9 @@ public abstract class TsTypeSpec
         if (type == typeof(ICollection<>) || type == typeof(ICollection))
             return EnumerableType.Collection;
 
+        if (type == typeof(ISet<>))
+            return EnumerableType.Set;
+
         return null;
     }
 

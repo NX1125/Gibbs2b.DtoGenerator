@@ -8,6 +8,7 @@ public enum EnumerableType
     None,
     Enumerable,
     Collection,
+    Set,
     Array,
     List,
 
