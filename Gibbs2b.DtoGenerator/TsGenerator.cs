@@ -424,6 +424,9 @@ public class TsGenerator : AbstractGenerator
         var project = _solution.Project;
         foreach (var ts in _solution.TypescriptProjects)
         {
+            if (ts.Disabled)
+                continue;
+
             StartFiles(ts.ProjectPaths.Select(path => Path.Combine(path, ts.DefaultHandlerPath, "handlers.gen.ts")));
 
             // generate interface with all handlers
@@ -431,7 +434,9 @@ public class TsGenerator : AbstractGenerator
             WriteLine();
 
             // import AxiosResponse
-            WriteLine("import { AxiosResponse, AxiosRequestConfig } from 'axios'");
+            WriteLine(ts.IsFetch
+                ? "import { HandlerResponse } from './fetch'"
+                : "import { AxiosResponse, AxiosRequestConfig } from 'axios'");
 
             // import each query and response
             foreach (var controller in project.Controllers)
@@ -487,8 +492,9 @@ public class TsGenerator : AbstractGenerator
                         WriteLine("/** @deprecated */");
                     }
 
-                    WriteLine(
-                        $"{handler.Name.CamelCase}(request: {queryName}, signal?: AbortSignal, config?: AxiosRequestConfig): Promise<AxiosResponse<{responseName}>>");
+                    WriteLine(ts.IsFetch
+                        ? $"{handler.Name.CamelCase}(request: {queryName}, signal?: AbortSignal, config?: Request): Promise<HandlerResponse<{responseName}>>"
+                        : $"{handler.Name.CamelCase}(request: {queryName}, signal?: AbortSignal, config?: AxiosRequestConfig): Promise<AxiosResponse<{responseName}>>");
                 }
             }
 
