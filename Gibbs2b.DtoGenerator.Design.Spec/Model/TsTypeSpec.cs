@@ -106,6 +106,9 @@ public abstract class TsTypeSpec
         if (type == typeof(IFormFile))
             return new JsTypeSpec { Type = JsType.Blob };
 
+        if (type == typeof(Stream))
+            return new JsTypeSpec { Type = JsType.Blob };
+
         if (type.IsGenericParameter)
         {
             return new GenericTypeSpec { GenericTypeName = type.Name };
