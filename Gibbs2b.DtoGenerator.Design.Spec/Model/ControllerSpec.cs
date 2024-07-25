@@ -73,6 +73,8 @@ public class HandlerSpec
         Controller = controller;
         Method = methodInfo;
 
+        var attr = methodInfo.GetCustomAttribute<GenHandlerAttribute>();
+
         // supports only one parameter
         if (methodInfo.GetParameters().Length != 1)
         {
@@ -93,7 +95,7 @@ public class HandlerSpec
         RouteName = methodInfo.Name;
         IsPost = methodInfo.GetCustomAttribute<HttpPostAttribute>() != null;
         // whether the first parameter uses FromForm attribute
-        IsForm = parameter.GetCustomAttribute<FromFormAttribute>() != null;
+        IsForm = parameter.GetCustomAttribute<FromFormAttribute>() != null || attr?.FormData == true;
 
         var returnType = methodInfo.ReturnType;
 

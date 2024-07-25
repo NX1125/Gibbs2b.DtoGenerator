@@ -504,21 +504,27 @@ public class TsGenerator : AbstractGenerator
             var groups = project.Controllers
                 .Where(c => c.TypescriptProject == ts)
                 .SelectMany(c => c.Handlers)
-                .GroupBy(h => h.IsPost)
+                .GroupBy(h => h.IsForm
+                    ? "Form"
+                    : h.IsPost
+                        ? "POST"
+                        : "GET")
                 .OrderBy(g => g.Key)
                 .ToDictionary(g => g.Key,
                     g => g.ToList());
 
-            if (!groups.ContainsKey(true))
-                groups[true] = new List<HandlerSpec>();
-            if (!groups.ContainsKey(false))
-                groups[false] = new List<HandlerSpec>();
+            // add empty list for each method if not present
+            foreach (var method in new[] { "POST", "Form", "GET" })
+            {
+                if (!groups.ContainsKey(method))
+                    groups[method] = new();
+            }
 
             // handler name to its route, grouped by method
-            foreach (var group in groups)
+            foreach (var group in groups
+                         .OrderBy(g => g.Key))
             {
-                var method = group.Key ? "POST" : "GET";
-                WriteLine($"export const {method}Handlers: {{");
+                WriteLine($"export const {group.Key}Handlers: {{");
                 WriteLine("[key in keyof GeneratedAPI]?: string");
                 WriteLine("} = {");
                 foreach (var handler in group.Value)
