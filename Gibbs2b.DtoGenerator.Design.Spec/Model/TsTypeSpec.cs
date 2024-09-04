@@ -92,6 +92,8 @@ public abstract class TsTypeSpec
             return new PrimitiveTypeSpec(TypeNameEnum.String) { ClrType = type };
         if (type == typeof(DateTime))
             return new PrimitiveTypeSpec(TypeNameEnum.DateTime) { ClrType = type };
+        if (type == typeof(Uri))
+            return new PrimitiveTypeSpec(TypeNameEnum.Uri) { ClrType = type };
         if (type == typeof(decimal))
             return new PrimitiveTypeSpec(TypeNameEnum.Decimal) { ClrType = type };
         if (type == typeof(bool))

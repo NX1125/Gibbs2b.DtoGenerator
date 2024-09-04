@@ -14,6 +14,7 @@ public enum TypeNameEnum
     Decimal,
     Bool,
     String,
+    Uri,
     DateTime,
     Guid,
     Model,

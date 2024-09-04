@@ -333,6 +333,7 @@ public class TsGenerator : AbstractGenerator
                     case TypeNameEnum.Bool:
                         builder.Append("boolean");
                         break;
+                    case TypeNameEnum.Uri:
                     case TypeNameEnum.String:
                     case TypeNameEnum.DateTime:
                     case TypeNameEnum.Guid:
