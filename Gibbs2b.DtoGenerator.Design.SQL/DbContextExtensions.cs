@@ -1,4 +1,5 @@
 using System.Linq.Expressions;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using NpgsqlTypes;
 
@@ -65,5 +66,26 @@ public static class DbContextExtensions
                 op.Property("Id").IsRequired();
             }
         });
+    }
+
+    public static void CallOnModelCreatingForDbSets<TContext>(this TContext context, ModelBuilder modelBuilder)
+        where TContext : DbContext
+    {
+        // For each DbSet property, call the following method when available
+        // public static void OnModelCreating(ModelBuilder modelBuilder)
+
+        var dbSets = context
+            .GetType()
+            .GetProperties()
+            .Where(p => p.PropertyType.IsGenericType && p.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>))
+            .ToList();
+
+        foreach (var dbSet in dbSets)
+        {
+            var entityType = dbSet.PropertyType.GetGenericArguments()[0];
+            var method = entityType.GetMethod("OnModelCreating", BindingFlags.Public | BindingFlags.Static);
+
+            method?.Invoke(null, [modelBuilder]);
+        }
     }
 }
