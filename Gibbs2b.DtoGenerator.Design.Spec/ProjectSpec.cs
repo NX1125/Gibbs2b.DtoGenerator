@@ -32,18 +32,14 @@ public class ProjectSpec
 
     public List<TsTypeSpec.LazyTypeSpec> LazyTypeSpecs { get; } = new();
 
-    public Assembly Assembly { get; }
+    public Assembly[] Assemblies { get; }
 
-    public ProjectSpec(Action<string[]> main, SolutionSpec solution) : this(main.Method.Module.Assembly, solution)
-    {
-    }
-
-    public ProjectSpec(Assembly assembly, SolutionSpec solution)
+    public ProjectSpec(Assembly[] assemblies, SolutionSpec solution)
     {
         Solution = solution;
 
-        Assembly = assembly;
-        Name = new NamespaceSpec(assembly);
+        Assemblies = assemblies;
+        Name = new NamespaceSpec(assemblies[0]);
     }
 
     public void Load(ILogger logger)
@@ -52,7 +48,7 @@ public class ProjectSpec
 
         List<(Type, Type)> forwards = new();
 
-        foreach (var type in Assembly.GetTypes())
+        foreach (var type in Assemblies.SelectMany(a => a.GetTypes()))
         {
             if (type.GetCustomAttribute<GenEnumAttribute>() != null)
             {
@@ -117,8 +113,8 @@ public class ProjectSpec
             lazy.Solve();
         }
 
-        Controllers = Assembly
-            .GetTypes()
+        Controllers = Assemblies
+            .SelectMany(a => a.GetTypes())
             .Where(t => t.GetCustomAttribute<GenControllerAttribute>() != null)
             .Select(t => new ControllerSpec(t, this, t.GetCustomAttribute<GenControllerAttribute>()!))
             .ToArray();

@@ -45,22 +45,6 @@ public class SolutionSpec
         Project = project;
     }
 
-    public void AddProject(Assembly assembly)
-    {
-        var project = new ProjectSpec(assembly, this);
-        AddProject(project);
-    }
-
-    public void AddProject(Type type)
-    {
-        AddProject(type.Assembly);
-    }
-
-    public void AddProject<TProgram>()
-    {
-        AddProject(typeof(TProgram));
-    }
-
     public void AddPythonProject(string name, string path)
     {
         PythonProjects[name] = new PythonProjectSpec
