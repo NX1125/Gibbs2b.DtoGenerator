@@ -75,15 +75,14 @@ public class HandlerSpec
 
         var attr = methodInfo.GetCustomAttribute<GenHandlerAttribute>();
 
-        // supports only one parameter
-        if (methodInfo.GetParameters().Length != 1)
-        {
-            throw new ArgumentException($"Method {methodInfo.Name} has more than one parameter");
-        }
-
         var parameter = methodInfo
             .GetParameters()
-            .First();
+            .SingleOrDefault(x => x.ParameterType.GetCustomAttribute<GenTsDtoModelAttribute>() != null);
+
+        if (parameter == null)
+        {
+            throw new ArgumentException($"Method {controller.Area}/{controller.Name}/{methodInfo.Name} has no query parameter");
+        }
 
         RouteAttribute = controller.Type.GetCustomAttribute<RouteAttribute>()!;
 
