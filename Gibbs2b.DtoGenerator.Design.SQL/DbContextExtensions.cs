@@ -1,6 +1,7 @@
 using System.Linq.Expressions;
 using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using NpgsqlTypes;
 
 namespace Gibbs2b.DtoGenerator.Design.SQL;
@@ -37,37 +38,6 @@ public static class DbContextExtensions
             config);
     }
 
-    public static void ExcludeView<TModel>(this ModelBuilder builder, string tableName) where TModel : class
-    {
-        builder
-            .Entity<TModel>()
-            .ToTable(tableName, b => b.ExcludeFromMigrations());
-    }
-
-    [Obsolete]
-    public static void CreateModelDto<TDto>(this ModelBuilder modelBuilder, string[] properties, string tableName, string[]? keys = null) where TDto : class
-    {
-        modelBuilder.Entity<TDto>(op =>
-        {
-            foreach (var p in properties)
-                op.Property(p).HasColumnName(p);
-
-            if (keys != null)
-            {
-                foreach (var key in keys)
-                {
-                    op.Property(key).IsRequired();
-                }
-
-                op.HasKey(keys);
-            }
-            else
-            {
-                op.Property("Id").IsRequired();
-            }
-        });
-    }
-
     public static void CallOnModelCreatingForDbSets<TContext>(this TContext context, ModelBuilder modelBuilder)
         where TContext : DbContext
     {
@@ -87,5 +57,21 @@ public static class DbContextExtensions
 
             method?.Invoke(null, [modelBuilder]);
         }
+    }
+
+    public static void ModifyProperty<TEntity, TProperty>(this DbContext context, TEntity entry, Expression<Func<TEntity, TProperty>> field,
+        bool modified = true)
+        where TEntity : class
+    {
+        context
+            .Entry(entry)
+            .ModifyProperty(field, modified);
+    }
+
+    public static void ModifyProperty<TEntity, TPropertyType>(this EntityEntry<TEntity> entry,
+        Expression<Func<TEntity, TPropertyType>> property,
+        bool modified = true) where TEntity : class
+    {
+        entry.Property(property).IsModified = modified;
     }
 }
