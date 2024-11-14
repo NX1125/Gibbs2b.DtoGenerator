@@ -463,9 +463,8 @@ public class TsGenerator : AbstractGenerator
 
                     if (query?.Dto == response?.Dto)
                     {
-                        var importPath = query!.Dto.Attribute?.ImportPath ?? ".";
                         WriteLine(
-                            $"import {{ {query.DtoName}, {response!.DtoName} }} from '{importPath}/{query.Dto.DtoName.KebabCase}.dto.gen'");
+                            $"import {{ {query.DtoName}, {response!.DtoName} }} from '@/dto/{query.Dto.DtoName.KebabCase}.dto.gen'");
                     }
                     else
                     {
@@ -583,9 +582,7 @@ public class TsGenerator : AbstractGenerator
                 continue;
 
             // get relative path
-            var path = prefix != null ? $"{prefix}/{group.Key}" : Path.GetRelativePath(currentPath, group.Key);
-            if (!path.StartsWith('.') && !path.StartsWith('@'))
-                path = "./" + path;
+            var path = $"@/dto/{group.Key}";
 
             if (group.Default != null)
             {
