@@ -145,6 +145,9 @@ public class TsGenerator : AbstractGenerator
             var project = _solution.Project;
             foreach (var dto in project.TsDto.Values)
             {
+                if (dto.ModelAttribute is { Ignore: true })
+                    continue;
+
                 var paths = dto.TsProject!.ProjectPaths
                     .Select(path => Path.Combine(path, dto.TsProject.DefaultDtoPath, $"{dto.DtoName.KebabCase}.dto.gen.ts"))
                     .ToArray();

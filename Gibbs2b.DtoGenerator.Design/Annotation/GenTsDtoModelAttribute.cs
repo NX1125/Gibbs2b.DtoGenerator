@@ -10,6 +10,7 @@ public class GenTsDtoModelAttribute : Attribute
     public Type? ParentType { get; set; }
 
     public bool AddValidationErrors { get; set; }
+    public bool Ignore { get; set; }
 
     public Type? RemapTo { get; set; }
 }
