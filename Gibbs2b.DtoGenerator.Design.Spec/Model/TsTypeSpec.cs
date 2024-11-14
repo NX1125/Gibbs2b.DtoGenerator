@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Reflection;
 using System.Text.Json.Serialization;
+using Gibbs2b.DtoGenerator.Annotation;
 using Microsoft.AspNetCore.Http;
 
 namespace Gibbs2b.DtoGenerator.Model;
@@ -104,6 +105,13 @@ public abstract class TsTypeSpec
             return new PrimitiveTypeSpec(TypeNameEnum.Object) { ClrType = type };
         if (type.FullName == "NpgsqlTypes.NpgsqlTsVector")
             return new PrimitiveTypeSpec(TypeNameEnum.TsVector) { ClrType = type };
+        if (type.GetInterfaces().Any(x => x.Name == "IAssetUrlBuilder"))
+            return new PrimitiveTypeSpec(TypeNameEnum.String) { ClrType = type };
+
+        if (type.GetCustomAttribute<GenTsDtoModelAttribute>() is { RemapTo: not null } remap)
+        {
+            type = remap.RemapTo;
+        }
 
         if (type == typeof(IFormFile))
             return new JsTypeSpec { Type = JsType.Blob };

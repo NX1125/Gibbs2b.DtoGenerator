@@ -172,8 +172,11 @@ public class TsGenerator : AbstractGenerator
                                     imports.Add(new TsImport
                                     {
                                         Name = opaque.BaseType.Attr.Name,
-                                        AbsoluteFrom = Path.Combine(dto.TsProject.EnumPathPrefix ?? dto.TsProject.DefaultDtoPath,
-                                            opaque.BaseType.Attr.ImportFrom),
+                                        AbsoluteFrom = opaque.BaseType.Attr.ImportFrom == null
+                                            ? null
+                                            : Path.Combine(dto.TsProject.EnumPathPrefix ?? dto
+                                                    .TsProject.DefaultDtoPath,
+                                                opaque.BaseType.Attr.ImportFrom),
                                     });
                                     break;
                                 case TsTypeSpec.EnumTypeSpec enumType:
@@ -200,6 +203,7 @@ public class TsGenerator : AbstractGenerator
                     {
                         WriteLine("/** @deprecated */");
                     }
+
                     var generic = model.GenericTypeName != null ? $"<{model.GenericTypeName}>" : "";
                     WriteLine($"export interface {model.DtoName}{generic} {{");
 
@@ -458,7 +462,7 @@ public class TsGenerator : AbstractGenerator
                     {
                         var importPath = query!.Dto.Attribute?.ImportPath ?? ".";
                         WriteLine(
-                            $"import {{ {query!.DtoName}, {response!.DtoName} }} from '{importPath}/{query.Dto.DtoName.KebabCase}.dto.gen'");
+                            $"import {{ {query.DtoName}, {response!.DtoName} }} from '{importPath}/{query.Dto.DtoName.KebabCase}.dto.gen'");
                     }
                     else
                     {
@@ -572,6 +576,9 @@ public class TsGenerator : AbstractGenerator
 
         foreach (var group in groups)
         {
+            if (group.Key == null)
+                continue;
+
             // get relative path
             var path = prefix != null ? $"{prefix}/{group.Key}" : Path.GetRelativePath(currentPath, group.Key);
             if (!path.StartsWith('.') && !path.StartsWith('@'))
@@ -611,7 +618,7 @@ public class TsGenerator : AbstractGenerator
     {
         public string Name { get; set; }
         public bool Default { get; set; }
-        public string AbsoluteFrom { get; set; } = null!;
+        public string? AbsoluteFrom { get; set; }
 
         public EnumSpec? Enum { get; set; }
         public TsDtoModelSpec? Model { get; set; }
