@@ -5,4 +5,6 @@ public class GenEnumAttribute : Attribute
 {
     public bool TsArrayEnabled { get; set; }
     public string? DtoName { get; set; }
+
+    public bool IsPostgresEnum { get; set; } = true;
 }
