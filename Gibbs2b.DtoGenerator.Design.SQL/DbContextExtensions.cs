@@ -53,10 +53,31 @@ public static class DbContextExtensions
         foreach (var dbSet in dbSets)
         {
             var entityType = dbSet.PropertyType.GetGenericArguments()[0];
-            var method = entityType.GetMethod("OnModelCreating", BindingFlags.Public | BindingFlags.Static);
-
-            method?.Invoke(null, [modelBuilder]);
+            InvokeOnModelCreating(entityType, modelBuilder);
         }
+    }
+
+    public static void CallOnModelCreatingForEntities(this ModelBuilder modelBuilder)
+    {
+        // For each entity type in the model, call the following method when available
+        // public static void OnModelCreating(ModelBuilder modelBuilder)
+
+        var types = modelBuilder.Model
+            .GetEntityTypes()
+            .Select(e => e.ClrType)
+            .ToList();
+
+        foreach (var entityType in types)
+        {
+            InvokeOnModelCreating(entityType, modelBuilder);
+        }
+    }
+
+    private static void InvokeOnModelCreating(Type entityType, ModelBuilder modelBuilder)
+    {
+        var method = entityType.GetMethod("OnModelCreating", BindingFlags.Public | BindingFlags.Static);
+
+        method?.Invoke(null, [modelBuilder]);
     }
 
     public static void ModifyProperty<TEntity, TProperty>(this DbContext context, TEntity entry, Expression<Func<TEntity, TProperty>> field,
