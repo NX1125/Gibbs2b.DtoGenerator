@@ -95,4 +95,26 @@ public static class DbContextExtensions
     {
         entry.Property(property).IsModified = modified;
     }
+
+    public static TEntity ModifyProperties<TEntity, TSource, TTarget>(this DbContext context, TEntity entity, TSource source,
+        Expression<Func<TSource, TTarget>> expression)
+    {
+        var entityType = entity!.GetType();
+        var entry = context.Entry(entity);
+
+        var properties = ((NewExpression) expression.Body).Arguments
+            .Cast<MemberExpression>()
+            .Select(x => x.Member)
+            .Cast<PropertyInfo>()
+            .ToArray();
+
+        foreach (var property in properties)
+        {
+            var value = property.GetValue(source);
+            entityType.GetProperty(property.Name)!.SetValue(entity, value);
+            entry.Property(property.Name).IsModified = true;
+        }
+
+        return entity;
+    }
 }
