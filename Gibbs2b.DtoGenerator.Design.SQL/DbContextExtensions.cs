@@ -111,6 +111,25 @@ public static class DbContextExtensions
         return ModifyProperties(entry, entry.Entity, source, expression);
     }
 
+    public static void ModifyProperties<TEntity, TSource>(this EntityEntry<TEntity> entry, TSource source)
+        where TEntity : class
+    {
+        // use all fields of the source class
+        var entityType = entry.Entity.GetType();
+
+        var properties = typeof(TSource)
+            .GetProperties()
+            .Where(x => x.CanRead)
+            .ToArray();
+
+        foreach (var property in properties)
+        {
+            var value = property.GetValue(source);
+            entityType.GetProperty(property.Name)!.SetValue(entry.Entity, value);
+            entry.Property(property.Name).IsModified = true;
+        }
+    }
+
     public static TEntity ModifyProperties<TEntity, TSource, TTarget>(this EntityEntry<TEntity> entry, TEntity entity, TSource source,
         Expression<Func<TSource, TTarget>> expression)
         where TEntity : class
