@@ -98,9 +98,24 @@ public static class DbContextExtensions
 
     public static TEntity ModifyProperties<TEntity, TSource, TTarget>(this DbContext context, TEntity entity, TSource source,
         Expression<Func<TSource, TTarget>> expression)
+        where TEntity : class
+    {
+        var entry = context.Entry(entity);
+        return ModifyProperties(entry, entity, source, expression);
+    }
+
+    public static TEntity ModifyProperties<TEntity, TSource, TTarget>(this EntityEntry<TEntity> entry, TSource source,
+        Expression<Func<TSource, TTarget>> expression)
+        where TEntity : class
+    {
+        return ModifyProperties(entry, entry.Entity, source, expression);
+    }
+
+    public static TEntity ModifyProperties<TEntity, TSource, TTarget>(this EntityEntry<TEntity> entry, TEntity entity, TSource source,
+        Expression<Func<TSource, TTarget>> expression)
+        where TEntity : class
     {
         var entityType = entity!.GetType();
-        var entry = context.Entry(entity);
 
         var properties = ((NewExpression) expression.Body).Arguments
             .Cast<MemberExpression>()
