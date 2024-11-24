@@ -96,6 +96,10 @@ public static class DbContextExtensions
         entry.Property(property).IsModified = modified;
     }
 
+    /// <summary>
+    /// Use <see cref="PropertyValues.SetValues(object)"/> to modify the properties of an entity.
+    /// </summary>
+    [Obsolete]
     public static TEntity ModifyProperties<TEntity, TSource, TTarget>(this DbContext context, TEntity entity, TSource source,
         Expression<Func<TSource, TTarget>> expression)
         where TEntity : class
@@ -104,6 +108,10 @@ public static class DbContextExtensions
         return ModifyProperties(entry, entity, source, expression);
     }
 
+    /// <summary>
+    /// Use <see cref="PropertyValues.SetValues(object)"/> to modify the properties of an entity.
+    /// </summary>
+    [Obsolete]
     public static TEntity ModifyProperties<TEntity, TSource, TTarget>(this EntityEntry<TEntity> entry, TSource source,
         Expression<Func<TSource, TTarget>> expression)
         where TEntity : class
@@ -111,6 +119,10 @@ public static class DbContextExtensions
         return ModifyProperties(entry, entry.Entity, source, expression);
     }
 
+    /// <summary>
+    /// Use <see cref="PropertyValues.SetValues(object)"/> to modify the properties of an entity.
+    /// </summary>
+    [Obsolete]
     public static void ModifyProperties<TEntity, TSource>(this EntityEntry<TEntity> entry, TSource source)
         where TEntity : class
     {
@@ -130,6 +142,10 @@ public static class DbContextExtensions
         }
     }
 
+    /// <summary>
+    /// Use <see cref="PropertyValues.SetValues(object)"/> to modify the properties of an entity.
+    /// </summary>
+    [Obsolete]
     public static TEntity ModifyProperties<TEntity, TSource, TTarget>(this EntityEntry<TEntity> entry, TEntity entity, TSource source,
         Expression<Func<TSource, TTarget>> expression)
         where TEntity : class
