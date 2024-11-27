@@ -154,4 +154,9 @@ public static class DbContextExtensions
 
         return entity;
     }
+
+    public static IQueryable<TSource> TakeOrAll<TSource>(this IQueryable<TSource> source, int? count)
+    {
+        return count.HasValue ? source.Take(count.Value) : source;
+    }
 }
