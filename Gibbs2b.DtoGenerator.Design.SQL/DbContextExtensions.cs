@@ -38,7 +38,7 @@ public static class DbContextExtensions
             config);
     }
 
-    public static void CallOnModelCreatingForDbSets<TContext>(this TContext context, ModelBuilder modelBuilder)
+    public static HashSet<Type> CallOnModelCreatingForDbSets<TContext>(this TContext context, ModelBuilder modelBuilder)
         where TContext : DbContext
     {
         // For each DbSet property, call the following method when available
@@ -50,11 +50,17 @@ public static class DbContextExtensions
             .Where(p => p.PropertyType.IsGenericType && p.PropertyType.GetGenericTypeDefinition() == typeof(DbSet<>))
             .ToList();
 
+        HashSet<Type> called = new();
+
         foreach (var dbSet in dbSets)
         {
             var entityType = dbSet.PropertyType.GetGenericArguments()[0];
             InvokeOnModelCreating(entityType, modelBuilder);
+
+            called.Add(entityType);
         }
+
+        return called;
     }
 
     public static void CallOnModelCreatingForEntities(this ModelBuilder modelBuilder)
