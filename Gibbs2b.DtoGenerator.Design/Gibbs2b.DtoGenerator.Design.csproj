@@ -9,6 +9,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\..\Gibbs2b\Gibbs2b.DTO.Generator.Typescript.Annotation\Gibbs2b.DTO.Generator.Typescript.Annotation.csproj" />
     </ItemGroup>
 
 
