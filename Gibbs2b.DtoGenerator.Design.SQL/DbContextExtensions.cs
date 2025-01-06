@@ -165,4 +165,9 @@ public static class DbContextExtensions
     {
         return count.HasValue ? source.Take(count.Value) : source;
     }
+
+    public static IQueryable<TSource> SkipOrAll<TSource>(this IQueryable<TSource> source, int? count)
+    {
+        return count.HasValue ? source.Skip(count.Value) : source;
+    }
 }
