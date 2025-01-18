@@ -170,4 +170,22 @@ public static class DbContextExtensions
     {
         return count.HasValue ? source.Skip(count.Value) : source;
     }
+
+    public static IQueryable<TSource> OrderBy<TSource, TKey>(this IQueryable<TSource> source,
+        Expression<Func<TSource, TKey>> keySelector,
+        OrderByDirection direction)
+    {
+        return direction switch
+        {
+            OrderByDirection.Ascending => source.OrderBy(keySelector),
+            OrderByDirection.Descending => source.OrderByDescending(keySelector),
+            _ => throw new ArgumentOutOfRangeException(nameof(direction), direction, null),
+        };
+    }
+}
+
+public enum OrderByDirection
+{
+    Ascending,
+    Descending,
 }
