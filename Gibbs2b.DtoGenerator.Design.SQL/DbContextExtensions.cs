@@ -134,7 +134,13 @@ public static class DbContextExtensions
         foreach (var property in properties)
         {
             var value = property.GetValue(source);
-            entityType.GetProperty(property.Name)!.SetValue(entry.Entity, value);
+            var propertyInfo = entityType.GetProperty(property.Name);
+            if (propertyInfo == null)
+            {
+                throw new InvalidOperationException($"Property {property.Name} not found on {entityType.Name}");
+            }
+
+            propertyInfo.SetValue(entry.Entity, value);
             entry.Property(property.Name).IsModified = true;
         }
     }
