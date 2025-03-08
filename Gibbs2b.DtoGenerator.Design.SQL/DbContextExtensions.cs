@@ -29,7 +29,7 @@ public static class DbContextExtensions
         Expression<Func<TEntity, object>> include,
         string config = "english") where TEntity : class
     {
-        var lambda = field as LambdaExpression;
+        LambdaExpression lambda = field;
 
         modelBuilder.HasTsVector(
             field,
